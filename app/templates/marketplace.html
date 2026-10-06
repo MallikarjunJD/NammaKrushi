@@ -1,0 +1,1677 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Farm Marketplace</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(to bottom right, #f0fdf4, #eff6ff);
+            min-height: 100vh;
+            padding: 1rem;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            border-radius: 1rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 1rem;
+        }
+
+        .header-title h1 {
+            font-size: 2rem;
+            color: #166534;
+            margin-bottom: 0.25rem;
+        }
+
+        .header-title p {
+            color: #6b7280;
+        }
+
+        .user-info {
+            text-align: right;
+        }
+
+        .username {
+            color: #15803d;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .date {
+            color: #9ca3af;
+            font-size: 0.875rem;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 0.5rem;
+            border-bottom: 2px solid #e5e7eb;
+        }
+
+        .tab {
+            padding: 0.75rem 1.5rem;
+            background: none;
+            border: none;
+            font-weight: 600;
+            color: #6b7280;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            margin-bottom: -2px;
+            transition: all 0.3s;
+        }
+
+        .tab:hover {
+            color: #374151;
+        }
+
+        .tab.active {
+            color: #15803d;
+            border-bottom-color: #15803d;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .search-filter {
+            background: white;
+            border-radius: 0.75rem;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .search-box {
+            position: relative;
+            margin-bottom: 1rem;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 0.75rem 1rem 0.75rem 2.5rem;
+            border: 1px solid #d1d5db;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+        }
+
+        .search-box input:focus {
+            outline: none;
+            border-color: #16a34a;
+            box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.1);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 0.75rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #9ca3af;
+        }
+
+        .category-filters {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 0.5rem;
+            background: #f3f4f6;
+            color: #374151;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .filter-btn:hover {
+            background: #e5e7eb;
+        }
+
+        .filter-btn.active {
+            background: #16a34a;
+            color: white;
+        }
+
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+        }
+
+        .product-card {
+            background: white;
+            border-radius: 0.75rem;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+            transition: all 0.3s;
+        }
+
+        .product-card:hover {
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+        }
+
+        .product-image {
+            height: 150px;
+            background: linear-gradient(to right, #4ade80, #3b82f6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 4rem;
+        }
+
+        .product-image.my-listing {
+            background: linear-gradient(to right, #a78bfa, #ec4899);
+        }
+
+        .product-info {
+            padding: 1rem;
+        }
+
+        .product-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 0.5rem;
+        }
+
+        .product-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #1f2937;
+        }
+
+        .category-badge {
+            background: #d1fae5;
+            color: #065f46;
+            padding: 0.25rem 0.5rem;
+            border-radius: 1rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .product-description {
+            color: #6b7280;
+            font-size: 0.875rem;
+            margin-bottom: 1rem;
+        }
+
+        .product-details {
+            font-size: 0.875rem;
+            color: #374151;
+            margin-bottom: 1rem;
+        }
+
+        .product-detail {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .price {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #15803d;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 0.75rem;
+            border: none;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: #16a34a;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #15803d;
+        }
+
+        .btn-danger {
+            background: #dc2626;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #b91c1c;
+        }
+
+        .btn-add {
+            background: #16a34a;
+            color: white;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .add-form {
+            background: white;
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            display: none;
+        }
+
+        .add-form.active {
+            display: block;
+        }
+
+        .form-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #1f2937;
+            margin-bottom: 1rem;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            padding: 0.75rem;
+            border: 1px solid #d1d5db;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #16a34a;
+            box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.1);
+        }
+
+        .form-row {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .btn-secondary {
+            background: #e5e7eb;
+            color: #374151;
+        }
+
+        .btn-secondary:hover {
+            background: #d1d5db;
+        }
+
+        .empty-state {
+            background: white;
+            border-radius: 0.75rem;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            padding: 3rem;
+            text-align: center;
+            color: #6b7280;
+        }
+
+        .empty-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+
+        .cart-item {
+            background: white;
+            border-radius: 0.75rem;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            padding: 1rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .cart-image {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(to right, #4ade80, #3b82f6);
+            border-radius: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            flex-shrink: 0;
+        }
+
+        .cart-info {
+            flex: 1;
+        }
+
+        .cart-title {
+            font-size: 1.125rem;
+            font-weight: 700;
+            color: #1f2937;
+        }
+
+        .cart-seller {
+            font-size: 0.875rem;
+            color: #6b7280;
+        }
+
+        .cart-controls {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .quantity-control {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .qty-btn {
+            width: 32px;
+            height: 32px;
+            border: none;
+            background: #e5e7eb;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            font-weight: 700;
+        }
+
+        .qty-btn:hover {
+            background: #d1d5db;
+        }
+
+        .qty-display {
+            width: 50px;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        .cart-price {
+            font-weight: 700;
+            color: #1f2937;
+        }
+
+        .remove-btn {
+            width: 40px;
+            height: 40px;
+            border: none;
+            background: #fee2e2;
+            color: #dc2626;
+            border-radius: 0.5rem;
+            cursor: pointer;
+        }
+
+        .remove-btn:hover {
+            background: #fecaca;
+        }
+
+        .cart-total {
+            background: white;
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 1.5rem;
+        }
+
+        .total-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .total-label {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #1f2937;
+        }
+
+        .total-amount {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #15803d;
+        }
+
+        .cart-badge {
+            position: relative;
+        }
+
+        .badge {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: #dc2626;
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: 700;
+        }
+
+        @media (max-width: 768px) {
+            .header-top {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .user-info {
+                text-align: left;
+            }
+
+            .products-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .cart-item {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .cart-controls {
+                flex-direction: column;
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div class="header-top">
+                <div class="header-title">
+                    <h1>🛒 Farm Marketplace</h1>
+                    <p>Buy fresh produce directly from farmers</p>
+                </div>
+                <div class="user-info">
+                    <div class="username">👤 <span id="username">{{ username }}</span></div>
+                    <div class="date" id="currentDate"></div>
+                </div>
+            </div>
+
+            <!-- Tabs -->
+            <div class="tabs">
+                <button class="tab active" data-tab="browse">🛍️ Browse Market</button>
+                <button class="tab" data-tab="myListings">📦 My Listings</button>
+                <button class="tab" data-tab="myOrders">📋 My Orders</button>
+                <button class="tab cart-badge" data-tab="cart">
+                    🛒 Cart
+                    <span class="badge" id="cartBadge" style="display: none;">0</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Browse Market Tab -->
+        <div class="tab-content active" id="browse">
+            <div class="search-filter">
+                <div class="search-box">
+                    <span class="search-icon">🔍</span>
+                    <input type="text" id="searchInput" placeholder="Search products...">
+                </div>
+                <div class="category-filters" id="categoryFilters"></div>
+            </div>
+            <div class="products-grid" id="productsGrid"></div>
+        </div>
+
+        <!-- My Listings Tab -->
+        <div class="tab-content" id="myListings">
+            <button class="btn btn-add" onclick="checkVerificationAndAdd()">➕ Add New Product</button>
+            
+            <!-- Verification Status Alert -->
+            <div id="verificationAlert" style="display: none; background: white; border-radius: 0.75rem; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05); padding: 1rem; margin-bottom: 1.5rem;">
+                <div id="verificationMessage"></div>
+            </div>
+            
+            <!-- Verification Request Form -->
+            <div class="add-form" id="verificationForm">
+                <h2 class="form-title">🌾 Farmer Verification Request</h2>
+                <p style="color: #6b7280; margin-bottom: 1rem;">Please provide your farming details to get verified as a farming seller. This helps buyers trust your products.</p>
+                
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label style="margin-bottom: 0.25rem; font-weight: 600; color: #374151;">Farm Name *</label>
+                        <input type="text" id="farmName" placeholder="e.g., Green Valley Farm" required>
+                    </div>
+                    <div class="form-group">
+                        <label style="margin-bottom: 0.25rem; font-weight: 600; color: #374151;">Farm Location *</label>
+                        <input type="text" id="farmLocation" placeholder="e.g., Village, District, State" required>
+                    </div>
+                    <div class="form-group">
+                        <label style="margin-bottom: 0.25rem; font-weight: 600; color: #374151;">Farm Size *</label>
+                        <input type="text" id="farmSize" placeholder="e.g., 5 acres" required>
+                    </div>
+                    <div class="form-group">
+                        <label style="margin-bottom: 0.25rem; font-weight: 600; color: #374151;">Farming Experience *</label>
+                        <input type="text" id="farmingExperience" placeholder="e.g., 10 years" required>
+                    </div>
+                </div>
+                
+                <div class="form-group" style="margin-bottom: 1rem;">
+                    <label style="margin-bottom: 0.25rem; font-weight: 600; color: #374151;">Crops Grown *</label>
+                    <textarea id="cropsGrown" rows="3" placeholder="e.g., Rice, Wheat, Vegetables, Fruits (comma-separated)" required></textarea>
+                </div>
+                
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label style="margin-bottom: 0.25rem; font-weight: 600; color: #374151;">Phone Number *</label>
+                        <input type="tel" id="phoneNumber" placeholder="e.g., 9876543210" required>
+                    </div>
+                    <div class="form-group">
+                        <label style="margin-bottom: 0.25rem; font-weight: 600; color: #374151;">ID Proof Number *</label>
+                        <input type="text" id="idProofNumber" placeholder="Aadhar/PAN/Driving License" required>
+                    </div>
+                </div>
+                
+                <div class="form-actions">
+                    <button class="btn btn-primary" onclick="submitVerification()">Submit Verification Request</button>
+                    <button class="btn btn-secondary" onclick="toggleVerificationForm()">Cancel</button>
+                </div>
+            </div>
+            
+            <div class="add-form" id="addForm">
+                <h3 class="form-title">Add New Product</h3>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <input type="text" id="productName" placeholder="Product Name *">
+                    </div>
+                    <div class="form-group">
+                        <select id="productCategory">
+                            <option value="vegetables">🥬 Vegetables</option>
+                            <option value="fruits">🍎 Fruits</option>
+                            <option value="grains">🌾 Grains</option>
+                            <option value="dairy">🥛 Dairy Products</option>
+                            <option value="organic">🌿 Organic Produce</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <input type="number" id="productPrice" placeholder="Price per unit *">
+                    </div>
+                    <div class="form-group">
+                        <div class="form-row">
+                            <input type="number" id="productQuantity" placeholder="Quantity *" style="flex: 1;">
+                            <select id="productUnit">
+                                <option value="kg">kg</option>
+                                <option value="g">g</option>
+                                <option value="L">L</option>
+                                <option value="units">units</option>
+                                <option value="bags">bags</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <input type="text" id="productLocation" placeholder="Location">
+                    </div>
+                    <div class="form-group">
+                        <input type="text" id="productContact" placeholder="Contact Number">
+                    </div>
+                    <div class="form-group" style="grid-column: 1 / -1;">
+                        <textarea id="productDescription" placeholder="Description" rows="3"></textarea>
+                    </div>
+                </div>
+                <div class="form-actions">
+                    <button class="btn btn-primary" onclick="saveProduct()" style="flex: 1;">Save Product</button>
+                    <button class="btn btn-secondary" onclick="toggleAddForm()">Cancel</button>
+                </div>
+            </div>
+
+            <div class="products-grid" id="myListingsGrid"></div>
+        </div>
+
+        <!-- Cart Tab -->
+        <div class="tab-content" id="cart">
+            <div id="cartItems"></div>
+            <div class="cart-total" id="cartTotal" style="display: none;">
+                <div class="total-row">
+                    <span class="total-label">Total</span>
+                    <span class="total-amount" id="totalAmount">₹0.00</span>
+                </div>
+                <button class="btn btn-primary" onclick="showPaymentForm()">Proceed to Checkout</button>
+            </div>
+            
+            <!-- Payment Form -->
+            <div class="add-form" id="paymentForm" style="display: none;">
+                <h2 class="form-title">💳 Payment & Delivery Details</h2>
+                
+                <div style="background: #fef3c7; border-left: 4px solid #f59e0b; padding: 1rem; border-radius: 0.5rem; margin-bottom: 1.5rem;">
+                    <p style="color: #92400e; font-weight: 600; margin-bottom: 0.5rem;">📱 Payment Instructions:</p>
+                    <p style="color: #6b7280; font-size: 0.875rem; margin-bottom: 0.5rem;">1. Complete the payment via UPI/Razorpay</p>
+                    <p style="color: #6b7280; font-size: 0.875rem; margin-bottom: 0.5rem;">2. Take a screenshot of the payment confirmation</p>
+                    <p style="color: #6b7280; font-size: 0.875rem; margin-bottom: 1rem;">3. Upload the screenshot below</p>
+                    <a href="https://razorpay.me/@katamakhilesh" target="_blank" class="btn btn-primary" style="display: inline-block; text-decoration: none; margin-bottom: 0.5rem;">
+                        🔗 Make Payment via Razorpay
+                    </a>
+                </div>
+                
+                <h3 style="color: #374151; font-size: 1.125rem; font-weight: 600; margin-bottom: 1rem;">📦 Delivery Address</h3>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label style="margin-bottom: 0.25rem; font-weight: 600; color: #374151;">Full Name *</label>
+                        <input type="text" id="fullName" placeholder="Enter your full name" required>
+                    </div>
+                    <div class="form-group">
+                        <label style="margin-bottom: 0.25rem; font-weight: 600; color: #374151;">Phone Number *</label>
+                        <input type="tel" id="paymentPhoneNumber" placeholder="10-digit mobile number" required>
+                    </div>
+                </div>
+                
+                <div class="form-group" style="margin-bottom: 1rem;">
+                    <label style="margin-bottom: 0.25rem; font-weight: 600; color: #374151;">Address Line 1 *</label>
+                    <input type="text" id="addressLine1" placeholder="House No., Building Name, Street" required>
+                </div>
+                
+                <div class="form-group" style="margin-bottom: 1rem;">
+                    <label style="margin-bottom: 0.25rem; font-weight: 600; color: #374151;">Address Line 2</label>
+                    <input type="text" id="addressLine2" placeholder="Landmark, Area (Optional)">
+                </div>
+                
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label style="margin-bottom: 0.25rem; font-weight: 600; color: #374151;">City *</label>
+                        <input type="text" id="city" placeholder="City" required>
+                    </div>
+                    <div class="form-group">
+                        <label style="margin-bottom: 0.25rem; font-weight: 600; color: #374151;">State *</label>
+                        <input type="text" id="state" placeholder="State" required>
+                    </div>
+                    <div class="form-group">
+                        <label style="margin-bottom: 0.25rem; font-weight: 600; color: #374151;">Pincode *</label>
+                        <input type="text" id="pincode" placeholder="6-digit pincode" required>
+                    </div>
+                </div>
+                
+                <h3 style="color: #374151; font-size: 1.125rem; font-weight: 600; margin: 1.5rem 0 1rem;">📸 Payment Proof</h3>
+                <div class="form-group" style="margin-bottom: 1rem;">
+                    <label style="margin-bottom: 0.25rem; font-weight: 600; color: #374151;">Upload Payment Screenshot *</label>
+                    <input type="file" id="paymentScreenshot" accept="image/*" required style="padding: 0.5rem;">
+                    <p style="color: #6b7280; font-size: 0.75rem; margin-top: 0.25rem;">Supported formats: JPG, PNG, JPEG (Max 5MB)</p>
+                </div>
+                
+                <div style="background: #eff6ff; padding: 1rem; border-radius: 0.5rem; margin-bottom: 1rem;">
+                    <p style="color: #374151; font-weight: 600; margin-bottom: 0.5rem;">Order Summary:</p>
+                    <div id="orderSummary" style="color: #6b7280; font-size: 0.875rem;"></div>
+                    <p style="color: #15803d; font-weight: 700; font-size: 1.25rem; margin-top: 0.5rem;">Total: ₹<span id="paymentTotal">0.00</span></p>
+                </div>
+                
+                <div class="form-actions">
+                    <button class="btn btn-primary" onclick="submitPayment()" style="flex: 1;">Submit Payment</button>
+                    <button class="btn btn-secondary" onclick="hidePaymentForm()">Cancel</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- My Orders Tab -->
+        <div class="tab-content" id="myOrders">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                <h2 style="color: #1f2937; font-size: 1.5rem; font-weight: 700; margin: 0;">📋 My Orders</h2>
+                <button onclick="loadMyOrders()" class="btn-primary" style="padding: 8px 16px; font-size: 0.9rem;">
+                    🔄 Refresh Orders
+                </button>
+            </div>
+            <div id="ordersContainer"></div>
+        </div>
+
+        <!-- Product Orders Modal -->
+        <div id="productOrdersModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); z-index: 1000; padding: 2rem; overflow-y: auto;">
+            <div style="max-width: 900px; margin: 0 auto; background: white; border-radius: 1rem; padding: 2rem; position: relative;">
+                <button onclick="closeProductOrdersModal()" style="position: absolute; top: 1rem; right: 1rem; background: #fee2e2; color: #dc2626; border: none; width: 40px; height: 40px; border-radius: 0.5rem; cursor: pointer; font-size: 1.5rem; font-weight: bold;">
+                    ×
+                </button>
+                <h2 style="color: #1f2937; font-size: 1.5rem; font-weight: 700; margin-bottom: 1.5rem;" id="productOrdersTitle">📦 Orders for Product</h2>
+                <div id="productOrdersContent"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const categories = [
+            { id: 'all', label: 'All Products', icon: '🌾' },
+            { id: 'vegetables', label: 'Vegetables', icon: '🥬' },
+            { id: 'fruits', label: 'Fruits', icon: '🍎' },
+            { id: 'grains', label: 'Grains', icon: '🌾' },
+            { id: 'dairy', label: 'Dairy Products', icon: '🥛' },
+            { id: 'organic', label: 'Organic Produce', icon: '🌿' }
+        ];
+
+        let listings = [];
+        let myListings = [];
+        let myOrders = [];
+        let cart = JSON.parse(localStorage.getItem('farm_marketplace_cart')) || [];
+        let currentFilter = 'all';
+        let verificationStatus = null;
+        const username = document.getElementById('username').textContent;
+
+        // Initialize
+        document.getElementById('currentDate').textContent = new Date().toLocaleDateString();
+        renderCategoryFilters();
+        loadProducts();
+        loadMyListings();
+        loadMyOrders();
+        checkVerificationStatus();
+        renderCart();
+        updateCartBadge();
+
+        // Load products from database
+        async function loadProducts() {
+            try {
+                const response = await fetch('/api/products');
+                if (response.ok) {
+                    listings = await response.json();
+                    renderProducts();
+                }
+            } catch (error) {
+                console.error('Error loading products:', error);
+            }
+        }
+
+        // Load user's own products
+        async function loadMyListings() {
+            try {
+                const response = await fetch('/api/my_products');
+                if (response.ok) {
+                    myListings = await response.json();
+                    renderMyListings();
+                }
+            } catch (error) {
+                console.error('Error loading my products:', error);
+            }
+        }
+
+        // Tab switching
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                const tabName = tab.dataset.tab;
+                
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                
+                tab.classList.add('active');
+                document.getElementById(tabName).classList.add('active');
+            });
+        });
+
+        // Search functionality
+        document.getElementById('searchInput').addEventListener('input', (e) => {
+            renderProducts(e.target.value);
+        });
+
+        function renderCategoryFilters() {
+            const container = document.getElementById('categoryFilters');
+            container.innerHTML = categories.map(cat => `
+                <button class="filter-btn ${cat.id === 'all' ? 'active' : ''}" onclick="filterByCategory('${cat.id}')">
+                    ${cat.icon} ${cat.label}
+                </button>
+            `).join('');
+        }
+
+        function filterByCategory(categoryId) {
+            currentFilter = categoryId;
+            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            renderProducts();
+        }
+
+        function renderProducts(searchQuery = '') {
+            const grid = document.getElementById('productsGrid');
+            const filtered = listings.filter(listing => {
+                const matchesSearch = listing.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                                    listing.description.toLowerCase().includes(searchQuery.toLowerCase());
+                const matchesCategory = currentFilter === 'all' || listing.category === currentFilter;
+                const notMine = listing.seller !== username;
+                return matchesSearch && matchesCategory && notMine;
+            });
+
+            if (filtered.length === 0) {
+                grid.innerHTML = `
+                    <div class="empty-state" style="grid-column: 1 / -1;">
+                        <div class="empty-icon">📦</div>
+                        <p style="font-size: 1.125rem;">No products found</p>
+                    </div>
+                `;
+                return;
+            }
+
+            grid.innerHTML = filtered.map(listing => {
+                const category = categories.find(c => c.id === listing.category);
+                return `
+                    <div class="product-card">
+                        <div class="product-image">${category.icon}</div>
+                        <div class="product-info">
+                            <div class="product-header">
+                                <h3 class="product-title">${listing.name}</h3>
+                                <span class="category-badge">${category.label}</span>
+                            </div>
+                            <p class="product-description">${listing.description}</p>
+                            <div class="product-details">
+                                <div class="product-detail">
+                                    <span>🏷️</span>
+                                    <span class="price">₹${listing.price}</span>
+                                    <span style="color: #6b7280;">/ ${listing.unit}</span>
+                                </div>
+                                <div class="product-detail">
+                                    <span>📦</span>
+                                    <span>${listing.quantity} ${listing.unit} available</span>
+                                </div>
+                                <div class="product-detail">
+                                    <span>👤</span>
+                                    <span>${listing.seller}</span>
+                                </div>
+                                ${listing.location ? `
+                                    <div class="product-detail">
+                                        <span>📍</span>
+                                        <span>${listing.location}</span>
+                                    </div>
+                                ` : ''}
+                                <div class="product-detail">
+                                    <span>📅</span>
+                                    <span>Posted: ${listing.datePosted}</span>
+                                </div>
+                            </div>
+                            <button class="btn btn-primary" onclick="addToCart(${listing.id})">
+                                🛒 Add to Cart
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function renderMyListings() {
+            const grid = document.getElementById('myListingsGrid');
+            
+            if (myListings.length === 0) {
+                grid.innerHTML = `
+                    <div class="empty-state" style="grid-column: 1 / -1;">
+                        <div class="empty-icon">📦</div>
+                        <p style="font-size: 1.125rem;">You haven't listed any products yet</p>
+                        <p style="font-size: 0.875rem; margin-top: 0.5rem;">Click "Add New Product" to get started</p>
+                    </div>
+                `;
+                return;
+            }
+
+            grid.innerHTML = myListings.map(listing => {
+                const category = categories.find(c => c.id === listing.category);
+                // Status badge styling based on status
+                const statusStyles = {
+                    'pending': { bg: '#fef3c7', color: '#92400e', text: 'Pending' },
+                    'active': { bg: '#d1fae5', color: '#065f46', text: 'Active' },
+                    'sold': { bg: '#e0e7ff', color: '#3730a3', text: 'Sold' },
+                    'rejected': { bg: '#fee2e2', color: '#991b1b', text: 'Rejected' }
+                };
+                const statusStyle = statusStyles[listing.status] || statusStyles['pending'];
+                
+                return `
+                    <div class="product-card">
+                        <div class="product-image my-listing">${category.icon}</div>
+                        <div class="product-info">
+                            <div class="product-header">
+                                <h3 class="product-title">${listing.name}</h3>
+                                <span class="category-badge" style="background: ${statusStyle.bg}; color: ${statusStyle.color};">${statusStyle.text}</span>
+                            </div>
+                            <p class="product-description">${listing.description}</p>
+                            <div class="product-details">
+                                <div class="product-detail">
+                                    <span>🏷️</span>
+                                    <span class="price">₹${listing.price}</span>
+                                    <span style="color: #6b7280;">/ ${listing.unit}</span>
+                                </div>
+                                <div class="product-detail">
+                                    <span>📦</span>
+                                    <span>${listing.quantity} ${listing.unit} available</span>
+                                </div>
+                                ${listing.location ? `
+                                    <div class="product-detail">
+                                        <span>📍</span>
+                                        <span>${listing.location}</span>
+                                    </div>
+                                ` : ''}
+                                <div class="product-detail">
+                                    <span>📅</span>
+                                    <span>Posted: ${listing.datePosted}</span>
+                                </div>
+                            </div>
+                            <div style="display: flex; gap: 0.5rem;">
+                                <button class="btn btn-primary" onclick="viewProductOrders(${listing.id}, '${listing.name}')" style="flex: 1;">
+                                    📋 View Orders
+                                </button>
+                                <button class="btn btn-danger" onclick="deleteListing(${listing.id})">
+                                    🗑️ Delete
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function renderCart() {
+            const container = document.getElementById('cartItems');
+            const totalContainer = document.getElementById('cartTotal');
+
+            if (cart.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">🛒</div>
+                        <p style="font-size: 1.25rem;">Your cart is empty</p>
+                        <p style="font-size: 0.875rem; margin-top: 0.5rem; color: #9ca3af;">Browse the marketplace to add items</p>
+                        <button class="btn btn-primary" style="width: auto; margin-top: 1.5rem; padding: 0.75rem 2rem;" onclick="switchTab('browse')">
+                            Browse Products
+                        </button>
+                    </div>
+                `;
+                totalContainer.style.display = 'none';
+                return;
+            }
+
+            container.innerHTML = cart.map(item => {
+                const category = categories.find(c => c.id === item.category);
+                return `
+                    <div class="cart-item">
+                        <div class="cart-image">${category.icon}</div>
+                        <div class="cart-info">
+                            <div class="cart-title">${item.name}</div>
+                            <div class="cart-seller">Seller: ${item.seller}</div>
+                            <div class="price" style="margin-top: 0.5rem;">₹${item.price} / ${item.unit}</div>
+                        </div>
+                        <div class="cart-controls">
+                            <div class="quantity-control">
+                                <button class="qty-btn" onclick="updateCartQuantity(${item.id}, ${item.cartQuantity - 1})">-</button>
+                                <span class="qty-display">${item.cartQuantity}</span>
+                                <button class="qty-btn" onclick="updateCartQuantity(${item.id}, ${item.cartQuantity + 1})">+</button>
+                            </div>
+                            <div class="cart-price">₹${(item.price * item.cartQuantity).toFixed(2)}</div>
+                            <button class="remove-btn" onclick="removeFromCart(${item.id})">✕</button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            const total = cart.reduce((sum, item) => sum + (item.price * item.cartQuantity), 0);
+            document.getElementById('totalAmount').textContent = `₹${total.toFixed(2)}`;
+            totalContainer.style.display = 'block';
+        }
+
+        function toggleAddForm() {
+            const form = document.getElementById('addForm');
+            form.classList.toggle('active');
+        }
+
+        function toggleVerificationForm() {
+            const form = document.getElementById('verificationForm');
+            form.classList.toggle('active');
+        }
+
+        async function checkVerificationStatus() {
+            try {
+                const response = await fetch('/api/check_verification');
+                if (response.ok) {
+                    verificationStatus = await response.json();
+                    updateVerificationAlert();
+                }
+            } catch (error) {
+                console.error('Error checking verification:', error);
+            }
+        }
+
+        function updateVerificationAlert() {
+            const alert = document.getElementById('verificationAlert');
+            const message = document.getElementById('verificationMessage');
+            
+            if (verificationStatus.status === 'pending') {
+                alert.style.display = 'block';
+                message.innerHTML = `
+                    <div style="display: flex; align-items: center; gap: 1rem;">
+                        <div style="font-size: 2rem;">⏳</div>
+                        <div>
+                            <div style="font-weight: 600; color: #92400e; margin-bottom: 0.25rem;">Verification Pending</div>
+                            <div style="color: #6b7280; font-size: 0.875rem;">Your farmer verification request is under review. You'll be able to add products once approved.</div>
+                        </div>
+                    </div>
+                `;
+            } else if (verificationStatus.status === 'rejected') {
+                alert.style.display = 'block';
+                message.innerHTML = `
+                    <div style="display: flex; align-items: center; gap: 1rem;">
+                        <div style="font-size: 2rem;">❌</div>
+                        <div>
+                            <div style="font-weight: 600; color: #991b1b; margin-bottom: 0.25rem;">Verification Rejected</div>
+                            <div style="color: #6b7280; font-size: 0.875rem;">Reason: ${verificationStatus.rejection_reason || 'Requirements not met'}</div>
+                            <button class="btn btn-primary" onclick="toggleVerificationForm()" style="margin-top: 0.5rem; padding: 0.5rem 1rem;">Reapply for Verification</button>
+                        </div>
+                    </div>
+                `;
+            } else if (verificationStatus.verified) {
+                alert.style.display = 'block';
+                message.innerHTML = `
+                    <div style="display: flex; align-items: center; gap: 1rem;">
+                        <div style="font-size: 2rem;">✅</div>
+                        <div>
+                            <div style="font-weight: 600; color: #065f46; margin-bottom: 0.25rem;">Verified Farming Seller</div>
+                            <div style="color: #6b7280; font-size: 0.875rem;">You are a verified farmer. You can now add products to the marketplace.</div>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+        async function checkVerificationAndAdd() {
+            if (!verificationStatus) {
+                await checkVerificationStatus();
+            }
+            
+            if (verificationStatus.verified) {
+                toggleAddForm();
+            } else if (verificationStatus.status === 'not_requested' || verificationStatus.status === 'rejected') {
+                toggleVerificationForm();
+            } else if (verificationStatus.status === 'pending') {
+                alert('Your verification request is pending. Please wait for admin approval.');
+            }
+        }
+
+        async function submitVerification() {
+            const data = {
+                farm_name: document.getElementById('farmName').value,
+                farm_location: document.getElementById('farmLocation').value,
+                farm_size: document.getElementById('farmSize').value,
+                farming_experience: document.getElementById('farmingExperience').value,
+                crops_grown: document.getElementById('cropsGrown').value,
+                phone_number: document.getElementById('phoneNumber').value,
+                id_proof_number: document.getElementById('idProofNumber').value
+            };
+            
+            if (!data.farm_name || !data.farm_location || !data.farm_size || !data.farming_experience || 
+                !data.crops_grown || !data.phone_number || !data.id_proof_number) {
+                alert('Please fill in all required fields');
+                return;
+            }
+            
+            try {
+                const response = await fetch('/api/submit_verification', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(data)
+                });
+                
+                const result = await response.json();
+                if (response.ok) {
+                    alert('Verification request submitted successfully! Please wait for admin approval.');
+                    toggleVerificationForm();
+                    // Clear form
+                    document.getElementById('farmName').value = '';
+                    document.getElementById('farmLocation').value = '';
+                    document.getElementById('farmSize').value = '';
+                    document.getElementById('farmingExperience').value = '';
+                    document.getElementById('cropsGrown').value = '';
+                    document.getElementById('phoneNumber').value = '';
+                    document.getElementById('idProofNumber').value = '';
+                    // Refresh status
+                    await checkVerificationStatus();
+                } else {
+                    alert(result.error || 'Failed to submit verification request');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Failed to submit verification request');
+            }
+        }
+
+        async function saveProduct() {
+            const name = document.getElementById('productName').value;
+            const category = document.getElementById('productCategory').value;
+            const price = parseFloat(document.getElementById('productPrice').value);
+            const quantity = document.getElementById('productQuantity').value;
+            const unit = document.getElementById('productUnit').value;
+            const description = document.getElementById('productDescription').value;
+            const location = document.getElementById('productLocation').value;
+            const contact = document.getElementById('productContact').value;
+
+            if (!name || !price || !quantity) {
+                alert('Please fill in all required fields');
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/add_product', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        name,
+                        category,
+                        price,
+                        quantity,
+                        unit,
+                        description,
+                        location,
+                        contact
+                    })
+                });
+
+                if (response.ok) {
+                    alert('Product added successfully! Waiting for admin approval.');
+                    document.getElementById('productName').value = '';
+                    document.getElementById('productPrice').value = '';
+                    document.getElementById('productQuantity').value = '';
+                    document.getElementById('productDescription').value = '';
+                    document.getElementById('productLocation').value = '';
+                    document.getElementById('productContact').value = '';
+
+                    toggleAddForm();
+                    await loadMyListings();
+                    await loadProducts();
+                } else {
+                    const result = await response.json();
+                    if (result.verification_required) {
+                        alert('You need to be a verified seller to add products. Please complete the verification process.');
+                        toggleAddForm();
+                        toggleVerificationForm();
+                    } else {
+                        alert(result.error || 'Failed to add product');
+                    }
+                }
+            } catch (error) {
+                console.error('Error saving product:', error);
+                alert('Error saving product');
+            }
+        }
+
+        function addToCart(id) {
+            const listing = listings.find(l => l.id === id);
+            if (!listing) return;
+
+            const existing = cart.find(item => item.id === id);
+            if (existing) {
+                existing.cartQuantity++;
+            } else {
+                cart.push({...listing, cartQuantity: 1});
+            }
+
+            localStorage.setItem('farm_marketplace_cart', JSON.stringify(cart));
+            updateCartBadge();
+            renderCart();
+        }
+
+        function removeFromCart(id) {
+            cart = cart.filter(item => item.id !== id);
+            localStorage.setItem('farm_marketplace_cart', JSON.stringify(cart));
+            updateCartBadge();
+            renderCart();
+        }
+
+        function updateCartQuantity(id, newQuantity) {
+            if (newQuantity <= 0) {
+                removeFromCart(id);
+                return;
+            }
+
+            const item = cart.find(i => i.id === id);
+            if (item) {
+                item.cartQuantity = newQuantity;
+                localStorage.setItem('farm_marketplace_cart', JSON.stringify(cart));
+                renderCart();
+            }
+        }
+
+        function updateCartBadge() {
+            const badge = document.getElementById('cartBadge');
+            if (cart.length > 0) {
+                badge.textContent = cart.length;
+                badge.style.display = 'flex';
+            } else {
+                badge.style.display = 'none';
+            }
+        }
+
+        function showPaymentForm() {
+            if (cart.length === 0) {
+                alert('Your cart is empty!');
+                return;
+            }
+            
+            // Hide payment form initially
+            document.getElementById('paymentForm').style.display = 'none';
+            
+            // Show form
+            document.getElementById('paymentForm').style.display = 'block';
+            
+            // Update order summary
+            let summaryHTML = '';
+            let total = 0;
+            cart.forEach(item => {
+                const qty = item.cartQuantity || 1;
+                const itemTotal = parseFloat(item.price) * qty;
+                total += itemTotal;
+                summaryHTML += `<p>${qty}x ${item.name} - ₹${itemTotal.toFixed(2)}</p>`;
+            });
+            document.getElementById('orderSummary').innerHTML = summaryHTML;
+            document.getElementById('paymentTotal').textContent = total.toFixed(2);
+            
+            // Scroll to form
+            document.getElementById('paymentForm').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function hidePaymentForm() {
+            document.getElementById('paymentForm').style.display = 'none';
+            // Reset form
+            document.getElementById('fullName').value = '';
+            document.getElementById('paymentPhoneNumber').value = '';
+            document.getElementById('addressLine1').value = '';
+            document.getElementById('addressLine2').value = '';
+            document.getElementById('city').value = '';
+            document.getElementById('state').value = '';
+            document.getElementById('pincode').value = '';
+            document.getElementById('paymentScreenshot').value = '';
+        }
+
+        async function submitPayment() {
+            // Validate all required fields
+            const fullName = document.getElementById('fullName').value.trim();
+            const phoneNumber = document.getElementById('paymentPhoneNumber').value.trim();
+            const addressLine1 = document.getElementById('addressLine1').value.trim();
+            const city = document.getElementById('city').value.trim();
+            const state = document.getElementById('state').value.trim();
+            const pincode = document.getElementById('pincode').value.trim();
+            const screenshotFile = document.getElementById('paymentScreenshot').files[0];
+
+            // Debug: Check which fields are missing
+            const missingFields = [];
+            if (!fullName) missingFields.push('Full Name');
+            if (!phoneNumber) missingFields.push('Phone Number');
+            if (!addressLine1) missingFields.push('Address Line 1');
+            if (!city) missingFields.push('City');
+            if (!state) missingFields.push('State');
+            if (!pincode) missingFields.push('Pincode');
+            
+            if (missingFields.length > 0) {
+                alert('Please fill the following required fields:\n- ' + missingFields.join('\n- '));
+                return;
+            }
+
+            if (!screenshotFile) {
+                alert('Please upload payment screenshot');
+                return;
+            }
+
+            // Validate phone number (10 digits)
+            if (!/^\d{10}$/.test(phoneNumber)) {
+                alert('Please enter a valid 10-digit phone number');
+                return;
+            }
+
+            // Validate pincode (6 digits)
+            if (!/^\d{6}$/.test(pincode)) {
+                alert('Please enter a valid 6-digit pincode');
+                return;
+            }
+
+            // Check file size (max 5MB)
+            if (screenshotFile.size > 5 * 1024 * 1024) {
+                alert('File size must be less than 5MB');
+                return;
+            }
+
+            try {
+                // Convert image to Base64
+                const base64Screenshot = await new Promise((resolve, reject) => {
+                    const reader = new FileReader();
+                    reader.onload = () => resolve(reader.result);
+                    reader.onerror = reject;
+                    reader.readAsDataURL(screenshotFile);
+                });
+
+                // Calculate total
+                const total = cart.reduce((sum, item) => sum + (parseFloat(item.price) * item.cartQuantity), 0);
+
+                // Prepare payment data
+                const paymentData = {
+                    order_items: JSON.stringify(cart),
+                    total_amount: total,
+                    full_name: fullName,
+                    phone_number: phoneNumber,
+                    address_line1: addressLine1,
+                    address_line2: document.getElementById('addressLine2').value.trim(),
+                    city: city,
+                    state: state,
+                    pincode: pincode,
+                    payment_screenshot: base64Screenshot
+                };
+
+                const response = await fetch('/api/submit_payment', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(paymentData)
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    alert(`✅ Payment submitted successfully!\n\nOrder ID: ${result.order_id}\n\nYour order is now waiting for admin verification. You will be notified once verified.`);
+                    
+                    // Clear cart
+                    cart = [];
+                    localStorage.setItem('farm_marketplace_cart', JSON.stringify(cart));
+                    renderCart();
+                    updateCartBadge();
+                    
+                    // Hide form and switch to browse tab
+                    hidePaymentForm();
+                    switchTab('browse');
+                } else {
+                    alert('Error: ' + (result.error || 'Failed to submit payment'));
+                }
+            } catch (error) {
+                console.error('Error submitting payment:', error);
+                alert('Error submitting payment. Please try again.');
+            }
+        }
+
+        // Auto-refresh for My Orders tab
+        let ordersRefreshInterval = null;
+
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            
+            document.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
+            document.getElementById(tabName).classList.add('active');
+
+            // Clear any existing interval
+            if (ordersRefreshInterval) {
+                clearInterval(ordersRefreshInterval);
+                ordersRefreshInterval = null;
+            }
+
+            // If switching to My Orders tab, load orders and start auto-refresh
+            if (tabName === 'myOrders') {
+                loadMyOrders();
+                // Auto-refresh every 10 seconds
+                ordersRefreshInterval = setInterval(() => {
+                    loadMyOrders();
+                }, 10000);
+            }
+        }
+
+        async function deleteListing(id) {
+            if (!confirm('Are you sure you want to delete this listing?')) {
+                return;
+            }
+            
+            try {
+                const response = await fetch('/api/delete_product', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ id })
+                });
+
+                if (response.ok) {
+                    await loadMyListings();
+                    await loadProducts();
+                } else {
+                    alert('Failed to delete product');
+                }
+            } catch (error) {
+                console.error('Error deleting product:', error);
+                alert('Error deleting product');
+            }
+        }
+
+        // Load user's orders
+        async function loadMyOrders() {
+            try {
+                const response = await fetch('/api/my_payments');
+                if (response.ok) {
+                    myOrders = await response.json();
+                    renderMyOrders();
+                }
+            } catch (error) {
+                console.error('Error loading orders:', error);
+            }
+        }
+
+        // Render My Orders
+        function renderMyOrders() {
+            const container = document.getElementById('ordersContainer');
+            
+            if (myOrders.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">📦</div>
+                        <p style="font-size: 1.25rem;">No orders yet</p>
+                        <p style="font-size: 0.875rem; margin-top: 0.5rem; color: #9ca3af;">Your order history will appear here</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = myOrders.map(order => {
+                const statusStyles = {
+                    'pending': { bg: '#fef3c7', color: '#92400e', text: 'Pending Verification', icon: '⏳' },
+                    'verified': { bg: '#d1fae5', color: '#065f46', text: 'Order Successfully Placed', icon: '✅' },
+                    'rejected': { bg: '#fee2e2', color: '#991b1b', text: 'Order Rejected', icon: '❌' }
+                };
+                const statusStyle = statusStyles[order.payment_status] || statusStyles['pending'];
+                
+                // Parse order items
+                let itemsHTML = '';
+                try {
+                    const items = JSON.parse(order.order_items);
+                    itemsHTML = items.map(item => {
+                        const qty = item.cartQuantity || item.quantity || 1;
+                        const itemPrice = parseFloat(item.price);
+                        return `<div style="padding: 0.5rem 0; border-bottom: 1px solid #e5e7eb;">
+                            <span style="font-weight: 600;">${qty}x ${item.name}</span> - 
+                            <span style="color: #15803d;">₹${(itemPrice * qty).toFixed(2)}</span>
+                        </div>`;
+                    }).join('');
+                } catch (e) {
+                    console.error('Error parsing order items:', e);
+                    itemsHTML = '<p style="color: #6b7280;">Unable to load items</p>';
+                }
+
+                return `
+                    <div style="background: white; border-radius: 0.75rem; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05); padding: 1.5rem; margin-bottom: 1.5rem;">
+                        <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 1rem;">
+                            <div>
+                                <h3 style="font-size: 1.125rem; font-weight: 700; color: #1f2937; margin-bottom: 0.5rem;">
+                                    Order #${order.order_id}
+                                </h3>
+                                <p style="color: #6b7280; font-size: 0.875rem;">
+                                    📅 Placed on: ${new Date(order.payment_date).toLocaleDateString()}
+                                </p>
+                            </div>
+                            <div style="text-align: right;">
+                                <div style="background: ${statusStyle.bg}; color: ${statusStyle.color}; padding: 0.5rem 1rem; border-radius: 1rem; font-weight: 600; font-size: 0.875rem; margin-bottom: 0.5rem;">
+                                    ${statusStyle.icon} ${statusStyle.text}
+                                </div>
+                                <p style="font-size: 1.25rem; font-weight: 700; color: #15803d;">
+                                    ₹${parseFloat(order.total_amount).toFixed(2)}
+                                </p>
+                            </div>
+                        </div>
+
+                        ${order.payment_status === 'pending' ? `
+                        <div style="background: #fef3c7; border-left: 4px solid #f59e0b; padding: 1rem; border-radius: 0.5rem; margin-bottom: 1rem;">
+                            <p style="color: #92400e; font-weight: 600; margin-bottom: 0.25rem;">⏳ Payment Verification in Progress</p>
+                            <p style="color: #6b7280; font-size: 0.875rem;">Your payment is being verified by our admin team. You will be notified once the verification is complete.</p>
+                        </div>
+                        ` : ''}
+
+                        ${order.payment_status === 'verified' ? `
+                        <div style="background: #d1fae5; border-left: 4px solid #16a34a; padding: 1rem; border-radius: 0.5rem; margin-bottom: 1rem;">
+                            <p style="color: #065f46; font-weight: 600; margin-bottom: 0.25rem;">✅ Order Successfully Placed!</p>
+                            <p style="color: #6b7280; font-size: 0.875rem;">Your payment has been verified and order is confirmed. The seller will contact you soon for delivery.</p>
+                            ${order.verified_date ? `<p style="color: #6b7280; font-size: 0.75rem; margin-top: 0.25rem;">Verified on: ${new Date(order.verified_date).toLocaleString()}</p>` : ''}
+                        </div>
+                        ` : ''}
+
+                        ${order.payment_status === 'rejected' ? `
+                        <div style="background: #fee2e2; border-left: 4px solid #dc2626; padding: 1rem; border-radius: 0.5rem; margin-bottom: 1rem;">
+                            <p style="color: #991b1b; font-weight: 600; margin-bottom: 0.25rem;">❌ Payment Rejected</p>
+                            <p style="color: #6b7280; font-size: 0.875rem;">${order.admin_notes || 'Payment verification failed. Please contact support.'}</p>
+                        </div>
+                        ` : ''}
+
+                        <div style="margin-bottom: 1rem;">
+                            <h4 style="font-weight: 600; color: #374151; margin-bottom: 0.5rem;">📦 Order Items:</h4>
+                            ${itemsHTML}
+                        </div>
+
+                        <div style="border-top: 1px solid #e5e7eb; padding-top: 1rem;">
+                            <h4 style="font-weight: 600; color: #374151; margin-bottom: 0.5rem;">📍 Delivery Address:</h4>
+                            <p style="color: #6b7280; font-size: 0.875rem;">
+                                ${order.full_name}<br>
+                                ${order.phone_number}<br>
+                                ${order.address_line1}<br>
+                                ${order.address_line2 ? order.address_line2 + '<br>' : ''}
+                                ${order.city}, ${order.state} - ${order.pincode}
+                            </p>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // View orders for a specific product
+        async function viewProductOrders(productId, productName) {
+            try {
+                const response = await fetch(`/api/product_orders/${productId}`);
+                if (!response.ok) {
+                    alert('Failed to load product orders');
+                    return;
+                }
+                
+                const data = await response.json();
+                document.getElementById('productOrdersTitle').textContent = `📦 Orders for "${productName}"`;
+                
+                const container = document.getElementById('productOrdersContent');
+                
+                if (data.orders.length === 0) {
+                    container.innerHTML = `
+                        <div style="text-align: center; padding: 3rem; color: #6b7280;">
+                            <div style="font-size: 3rem; margin-bottom: 1rem;">📭</div>
+                            <p style="font-size: 1.125rem; font-weight: 600;">No orders yet for this product</p>
+                            <p style="font-size: 0.875rem; margin-top: 0.5rem;">Orders will appear here once customers purchase this item</p>
+                        </div>
+                    `;
+                } else {
+                    container.innerHTML = `
+                        <div style="background: #eff6ff; padding: 1rem; border-radius: 0.5rem; margin-bottom: 1.5rem;">
+                            <p style="color: #1e40af; font-weight: 600;">Total Orders: ${data.total_orders}</p>
+                        </div>
+                        ${data.orders.map((order, index) => `
+                            <div style="background: white; border: 1px solid #e5e7eb; border-radius: 0.75rem; padding: 1.5rem; margin-bottom: 1rem;">
+                                <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 1rem;">
+                                    <div>
+                                        <h3 style="font-size: 1.125rem; font-weight: 700; color: #1f2937; margin-bottom: 0.5rem;">
+                                            Order #${order.order_id}
+                                        </h3>
+                                        <p style="color: #6b7280; font-size: 0.875rem;">
+                                            📅 Ordered: ${new Date(order.order_date).toLocaleDateString()}
+                                        </p>
+                                        ${order.verified_date ? `
+                                            <p style="color: #059669; font-size: 0.875rem;">
+                                                ✅ Verified: ${new Date(order.verified_date).toLocaleDateString()}
+                                            </p>
+                                        ` : ''}
+                                    </div>
+                                    <div style="text-align: right;">
+                                        <p style="font-size: 0.875rem; color: #6b7280; margin-bottom: 0.25rem;">Quantity</p>
+                                        <p style="font-size: 1.5rem; font-weight: 700; color: #15803d;">${order.quantity_ordered}</p>
+                                    </div>
+                                </div>
+                                
+                                <div style="background: #f9fafb; padding: 1rem; border-radius: 0.5rem; margin-bottom: 1rem;">
+                                    <h4 style="font-weight: 600; color: #374151; margin-bottom: 0.5rem;">👤 Customer Details:</h4>
+                                    <p style="color: #6b7280; font-size: 0.875rem; margin-bottom: 0.25rem;">
+                                        <strong>Name:</strong> ${order.customer_name}
+                                    </p>
+                                    <p style="color: #6b7280; font-size: 0.875rem; margin-bottom: 0.25rem;">
+                                        <strong>Phone:</strong> <a href="tel:${order.customer_phone}" style="color: #2563eb; text-decoration: none;">${order.customer_phone}</a>
+                                    </p>
+                                    <p style="color: #6b7280; font-size: 0.875rem;">
+                                        <strong>Address:</strong> ${order.delivery_address}
+                                    </p>
+                                </div>
+                                
+                                <div style="display: flex; justify-content: space-between; align-items: center; padding-top: 1rem; border-top: 1px solid #e5e7eb;">
+                                    <span style="font-weight: 600; color: #374151;">Total Amount:</span>
+                                    <span style="font-size: 1.25rem; font-weight: 700; color: #15803d;">₹${order.total_price.toFixed(2)}</span>
+                                </div>
+                            </div>
+                        `).join('')}
+                    `;
+                }
+                
+                document.getElementById('productOrdersModal').style.display = 'block';
+            } catch (error) {
+                console.error('Error loading product orders:', error);
+                alert('Error loading product orders');
+            }
+        }
+
+        function closeProductOrdersModal() {
+            document.getElementById('productOrdersModal').style.display = 'none';
+        }
+
+        // Close modal when clicking outside
+        document.addEventListener('click', (e) => {
+            const modal = document.getElementById('productOrdersModal');
+            if (e.target === modal) {
+                closeProductOrdersModal();
+            }
+        });
+    </script>
+</body>
+</html>

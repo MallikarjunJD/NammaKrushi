@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Farm Manager — Sign In / Sign Up</title>
+  <style>
+    body,html{margin:0;padding:0;height:100%;font-family:Arial, sans-serif;}
+    .auth-page{display:flex;align-items:center;justify-content:center;min-height:100vh;
+      background:url('https://images.unsplash.com/photo-1501004318641-b39e6451bec6?auto=format&fit=crop&w=1600&q=80') center/cover no-repeat;position:relative;}
+    .overlay{position:absolute;inset:0;background:rgba(0,0,0,0.45);}
+    .auth-box{position:relative;z-index:2;background:white;padding:28px 32px;border-radius:12px;
+      box-shadow:0 6px 18px rgba(0,0,0,0.2);max-width:420px;width:100%;}
+    h2{text-align:center;color:#2f8f6a;margin:0 0 20px;}
+    input{width:100%;padding:10px;margin:8px 0;border:1px solid #ccc;border-radius:8px;}
+    button{width:100%;padding:10px;margin-top:12px;background:#2f8f6a;color:white;border:none;
+      border-radius:8px;cursor:pointer;font-weight:600;}
+    .tab-buttons{display:flex;justify-content:space-around;margin-bottom:16px;}
+    .tab-buttons button{flex:1;margin:0 5px;background:#eee;color:#333;border:none;border-radius:8px;
+      padding:10px;font-weight:600;cursor:pointer;transition:0.3s;}
+    .tab-buttons button.active{background:#2f8f6a;color:white;}
+    .form{display:none;}
+    .form.active{display:block;}
+  </style>
+</head>
+<body>
+  <div class="auth-page">
+    <div class="overlay"></div>
+    <div class="auth-box">
+      <div class="tab-buttons">
+        <button id="signinTab" class="active">Sign In</button>
+        <button id="signupTab">Sign Up</button>
+      </div>
+
+
+      <!-- Sign In -->
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          <ul id="flash-messages" style="list-style:none;padding:0;margin:0 0 10px 0;">
+          {% for category, message in messages %}
+            <li data-category="{{ category }}" style="color:{% if category == 'danger' %}#d9534f{% elif category == 'success' %}#2f8f6a{% else %}#333{% endif %};background:#f8f9fa;padding:8px 12px;border-radius:6px;margin-bottom:4px;">{{ message }}</li>
+          {% endfor %}
+          </ul>
+        {% endif %}
+      {% endwith %}
+      <form id="signinForm" class="form active" action="/login" method="post">
+        <h2>Sign In</h2>
+        <input type="text" name="loginName" placeholder="Username" required />
+        <input type="password" name="loginMeta" placeholder="Password" required />
+        <button type="submit">Sign In</button>
+      </form>
+
+      <!-- Sign Up -->
+      <form id="signupForm" class="form" action="/register" method="post">
+        <h2>Sign Up</h2>
+        <input type="text" name="signupName" placeholder="Username" required />
+        <input type="password" name="signupPassword" placeholder="Password" required />
+        <input type="password" name="signupConfirm" placeholder="Confirm Password" required />
+        <button type="submit">Create Account</button>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    const signinTab = document.getElementById("signinTab");
+    const signupTab = document.getElementById("signupTab");
+    const signinForm = document.getElementById("signinForm");
+    const signupForm = document.getElementById("signupForm");
+
+    function showFlashFor(form) {
+      const flash = document.getElementById("flash-messages");
+      if (!flash) return;
+      if (form === 'signin') {
+        flash.style.display = signinForm.classList.contains('active') ? '' : 'none';
+      } else if (form === 'signup') {
+        flash.style.display = signupForm.classList.contains('active') ? '' : 'none';
+      }
+    }
+
+    signinTab.addEventListener("click", () => {
+      signinTab.classList.add("active");
+      signupTab.classList.remove("active");
+      signinForm.classList.add("active");
+      signupForm.classList.remove("active");
+      showFlashFor('signin');
+    });
+
+    signupTab.addEventListener("click", () => {
+      signupTab.classList.add("active");
+      signinTab.classList.remove("active");
+      signupForm.classList.add("active");
+      signinForm.classList.remove("active");
+      showFlashFor('signup');
+    });
+
+    // On page load, show flash only for the active form
+    window.onload = function() {
+      if (signinForm.classList.contains('active')) showFlashFor('signin');
+      if (signupForm.classList.contains('active')) showFlashFor('signup');
+    };
+  </script>
+</body>
+</html>

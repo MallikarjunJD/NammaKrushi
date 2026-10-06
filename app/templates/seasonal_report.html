@@ -1,0 +1,316 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Seasonal Report — Farm Task & Inventory Manager</title>
+  <style>
+    :root{--accent:#2f8f6a;--muted:#666}
+    *{box-sizing:border-box}
+    body{font-family:Inter, system-ui, Arial; margin:0;background:#f4f7f6; color:#0b1320}
+    header{background:linear-gradient(90deg,#ffffffcc, #eaf6f0); padding:18px 22px; display:flex;align-items:center;justify-content:space-between;gap:16px}
+    .brand{display:flex;align-items:center;gap:12px}
+    .logo{width:46px;height:46px;border-radius:10px;background:var(--accent);display:flex;align-items:center;justify-content:center;color:white;font-weight:700}
+    .container{max-width:1200px;margin:20px auto;padding:20px}
+    .card{background:white;border-radius:12px;padding:20px;box-shadow:0 6px 18px rgba(11,19,32,0.06);margin-bottom:20px}
+    .btn{background:var(--accent);color:white;padding:8px 12px;border-radius:8px;border:0;cursor:pointer;text-decoration:none;display:inline-block}
+    .btn-secondary{background:#6c757d;color:white;padding:8px 12px;border-radius:8px;border:0;cursor:pointer;text-decoration:none;display:inline-block}
+    .grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:20px}
+    .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+    table{width:100%;border-collapse:collapse;margin-top:12px}
+    th,td{padding:12px;border-bottom:1px solid #eef3f2;text-align:left}
+    th{background:#f8f9fa;font-weight:600}
+    .stat-card{text-align:center;padding:20px;background:#f8f9fa;border-radius:8px}
+    .stat-number{font-size:2em;font-weight:700;color:var(--accent);margin-bottom:8px}
+    .stat-label{color:var(--muted);font-size:14px}
+    .season-bar{display:flex;height:20px;border-radius:10px;overflow:hidden;margin-top:8px}
+    .season-kharif{background:#e74c3c;}
+    .season-rabi{background:#f39c12;}
+    .season-zaid{background:#27ae60;}
+    .loading{text-align:center;padding:40px;color:var(--muted)}
+    .error{background:#fee;color:#c33;padding:12px;border-radius:8px;margin-bottom:20px}
+    @media (max-width:880px){.grid-3,.grid-2{grid-template-columns:1fr} .container{padding:12px}}
+  </style>
+</head>
+<body>
+  <header>
+    <div class="brand">
+      <div class="logo">FM</div>
+      <div>
+        <div style="font-weight:700">Farm Task & Inventory</div>
+        <div style="color:var(--muted)">Seasonal Report Dashboard</div>
+      </div>
+    </div>
+    <div style="display:flex;gap:12px;align-items:center">
+      <a href="/dashboard" class="btn-secondary">Back to Dashboard</a>
+      <button id="downloadPdf" class="btn">📄 Download PDF Report</button>
+    </div>
+  </header>
+
+  <div class="container">
+    <div id="loading" class="loading">Loading report data...</div>
+    <div id="error" class="error" style="display:none"></div>
+    
+    <div id="reportContent" style="display:none">
+      <!-- User Info Card -->
+      <div class="card">
+        <h2 style="margin-top:0">Farm Report Summary</h2>
+        <p><strong>Farm Owner:</strong> <span id="username"></span></p>
+        <p><strong>Report Generated:</strong> <span id="generatedOn"></span></p>
+      </div>
+
+      <!-- Statistics Cards -->
+      <div class="grid-3">
+        <div class="stat-card">
+          <div class="stat-number" id="totalTasks">0</div>
+          <div class="stat-label">Total Tasks</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number" id="totalInventory">0</div>
+          <div class="stat-label">Inventory Items</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number" id="totalExpenses">₹0</div>
+          <div class="stat-label">Total Expenses</div>
+        </div>
+      </div>
+
+      <!-- Tasks and Inventory -->
+      <div class="grid-2">
+        <div class="card">
+          <h3 style="margin-top:0">Task Overview</h3>
+          <div style="display:flex;gap:20px;margin-bottom:16px">
+            <div>
+              <div style="font-size:1.5em;font-weight:600;color:var(--accent)" id="pendingTasks">0</div>
+              <div style="color:var(--muted);font-size:13px">Pending</div>
+            </div>
+            <div>
+              <div style="font-size:1.5em;font-weight:600;color:#27ae60" id="completedTasks">0</div>
+              <div style="color:var(--muted);font-size:13px">Completed</div>
+            </div>
+          </div>
+          <table id="tasksTable">
+            <thead>
+              <tr><th>Task</th><th>Date</th><th>Notes</th></tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+
+        <div class="card">
+          <h3 style="margin-top:0">Inventory Summary</h3>
+          <div style="margin-bottom:16px">
+            <div style="font-size:1.5em;font-weight:600;color:var(--accent)" id="totalQuantity">0</div>
+            <div style="color:var(--muted);font-size:13px">Total Quantity</div>
+          </div>
+          <table id="inventoryTable">
+            <thead>
+              <tr><th>Item</th><th>Quantity</th></tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Expenses Analysis -->
+      <div class="card">
+        <h3 style="margin-top:0">Seasonal Expenses Analysis</h3>
+        <div class="grid-3" style="margin-bottom:20px">
+          <div style="text-align:center">
+            <div style="font-size:1.2em;font-weight:600;color:#e74c3c" id="kharifExpense">₹0</div>
+            <div style="color:var(--muted);font-size:13px">Kharif Season</div>
+          </div>
+          <div style="text-align:center">
+            <div style="font-size:1.2em;font-weight:600;color:#f39c12" id="rabiExpense">₹0</div>
+            <div style="color:var(--muted);font-size:13px">Rabi Season</div>
+          </div>
+          <div style="text-align:center">
+            <div style="font-size:1.2em;font-weight:600;color:#27ae60" id="zaidExpense">₹0</div>
+            <div style="color:var(--muted);font-size:13px">Zaid Season</div>
+          </div>
+        </div>
+        
+        <div id="expenseBar" class="season-bar"></div>
+        
+        <table id="expensesTable">
+          <thead>
+            <tr><th>Item</th><th>Amount</th><th>Season</th></tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let reportData = null;
+
+    // Load report data when page loads
+    document.addEventListener('DOMContentLoaded', function() {
+      loadReportData();
+    });
+
+    async function loadReportData() {
+      try {
+        const response = await fetch('/api/seasonal_report', {
+          method: 'GET',
+          credentials: 'include'
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+          reportData = result.data;
+          displayReport(reportData);
+          document.getElementById('loading').style.display = 'none';
+          document.getElementById('reportContent').style.display = 'block';
+        } else {
+          showError(result.error || 'Failed to load report data');
+        }
+      } catch (error) {
+        showError('Failed to load report data: ' + error.message);
+      }
+    }
+
+    function displayReport(data) {
+      // User info
+      document.getElementById('username').textContent = data.user_info.username;
+      document.getElementById('generatedOn').textContent = data.generated_at;
+      
+      // Summary statistics
+      document.getElementById('totalTasks').textContent = data.summary.total_tasks;
+      document.getElementById('totalInventory').textContent = data.summary.total_inventory_items;
+      document.getElementById('totalExpenses').textContent = '₹' + data.summary.total_expenses;
+      
+      // Task overview
+      document.getElementById('pendingTasks').textContent = data.summary.pending_tasks;
+      document.getElementById('completedTasks').textContent = data.summary.completed_tasks;
+      
+      // Inventory summary
+      document.getElementById('totalQuantity').textContent = data.summary.total_inventory_quantity;
+      
+      // Seasonal expenses
+      document.getElementById('kharifExpense').textContent = '₹' + data.summary.expenses_by_season.kharif;
+      document.getElementById('rabiExpense').textContent = '₹' + data.summary.expenses_by_season.rabi;
+      document.getElementById('zaidExpense').textContent = '₹' + data.summary.expenses_by_season.zaid;
+      
+      // Expense bar chart
+      createExpenseBar(data.summary.expenses_by_season, data.summary.total_expenses);
+      
+      // Populate tables
+      populateTasksTable(data.tasks);
+      populateInventoryTable(data.inventory);
+      populateExpensesTable(data.expenses);
+    }
+
+    function createExpenseBar(expensesBySeason, totalExpenses) {
+      const bar = document.getElementById('expenseBar');
+      if (totalExpenses === 0) {
+        bar.innerHTML = '<div style="padding:8px;text-align:center;color:var(--muted)">No expenses recorded</div>';
+        return;
+      }
+      
+      const kharifPercent = (expensesBySeason.kharif / totalExpenses) * 100;
+      const rabiPercent = (expensesBySeason.rabi / totalExpenses) * 100;
+      const zaidPercent = (expensesBySeason.zaid / totalExpenses) * 100;
+      
+      bar.innerHTML = `
+        <div class="season-kharif" style="width:${kharifPercent}%" title="Kharif: ₹${expensesBySeason.kharif}"></div>
+        <div class="season-rabi" style="width:${rabiPercent}%" title="Rabi: ₹${expensesBySeason.rabi}"></div>
+        <div class="season-zaid" style="width:${zaidPercent}%" title="Zaid: ₹${expensesBySeason.zaid}"></div>
+      `;
+    }
+
+    function populateTasksTable(tasks) {
+      const tbody = document.querySelector('#tasksTable tbody');
+      tbody.innerHTML = '';
+      
+      if (tasks.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="3" style="text-align:center;color:var(--muted)">No tasks found</td></tr>';
+        return;
+      }
+      
+      tasks.forEach(task => {
+        const row = tbody.insertRow();
+        row.innerHTML = `
+          <td>${task.title}</td>
+          <td>${task.date}</td>
+          <td>${task.notes}</td>
+        `;
+      });
+    }
+
+    function populateInventoryTable(inventory) {
+      const tbody = document.querySelector('#inventoryTable tbody');
+      tbody.innerHTML = '';
+      
+      if (inventory.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="2" style="text-align:center;color:var(--muted)">No inventory found</td></tr>';
+        return;
+      }
+      
+      inventory.forEach(item => {
+        const row = tbody.insertRow();
+        row.innerHTML = `
+          <td>${item.item}</td>
+          <td>${item.quantity}</td>
+        `;
+      });
+    }
+
+    function populateExpensesTable(expenses) {
+      const tbody = document.querySelector('#expensesTable tbody');
+      tbody.innerHTML = '';
+      
+      if (expenses.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="3" style="text-align:center;color:var(--muted)">No expenses found</td></tr>';
+        return;
+      }
+      
+      expenses.forEach(expense => {
+        const row = tbody.insertRow();
+        row.innerHTML = `
+          <td>${expense.item}</td>
+          <td>₹${expense.amount}</td>
+          <td style="text-transform:capitalize">${expense.season}</td>
+        `;
+      });
+    }
+
+    function showError(message) {
+      document.getElementById('loading').style.display = 'none';
+      document.getElementById('error').textContent = message;
+      document.getElementById('error').style.display = 'block';
+    }
+
+    // Download PDF functionality
+    document.getElementById('downloadPdf').addEventListener('click', function() {
+      if (!reportData) {
+        alert('No data available. Please wait for the report to load.');
+        return;
+      }
+      
+      // Show loading message
+      const button = document.getElementById('downloadPdf');
+      const originalText = button.textContent;
+      button.textContent = 'Generating PDF...';
+      button.disabled = true;
+      
+      // Create download link directly to PDF endpoint
+      const link = document.createElement('a');
+      link.href = '/api/seasonal_report_pdf';
+      link.download = `farm_report_${reportData.generated_on}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      // Reset button after a short delay
+      setTimeout(() => {
+        button.textContent = originalText;
+        button.disabled = false;
+        alert('PDF report download started! Check your downloads folder.');
+      }, 1000);
+    });
+  </script>
+</body>
+</html>

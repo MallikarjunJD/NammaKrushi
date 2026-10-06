@@ -1,0 +1,1513 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Crop Planning & Seasonal Guide — Farm Manager</title>
+  <style>
+    :root{--accent:#2f8f6a;--muted:#666;--success:#27ae60;--warning:#f39c12;--danger:#e74c3c}
+    *{box-sizing:border-box}
+    body{font-family:Inter, system-ui, Arial; margin:0;background:#f4f7f6; color:#0b1320}
+    header{background:linear-gradient(90deg,#ffffffcc, #eaf6f0); padding:18px 22px; display:flex;align-items:center;justify-content:space-between;gap:16px}
+    .brand{display:flex;align-items:center;gap:12px}
+    .logo{width:46px;height:46px;border-radius:10px;background:var(--accent);display:flex;align-items:center;justify-content:center;color:white;font-weight:700}
+    .container{max-width:1400px;margin:20px auto;padding:20px}
+    .card{background:white;border-radius:12px;padding:20px;box-shadow:0 6px 18px rgba(11,19,32,0.06);margin-bottom:20px}
+    .btn{background:var(--accent);color:white;padding:8px 16px;border-radius:8px;border:0;cursor:pointer;text-decoration:none;display:inline-block}
+    .btn-secondary{background:#6c757d;color:white;padding:8px 16px;border-radius:8px;border:0;cursor:pointer;text-decoration:none;display:inline-block}
+    .btn-success{background:var(--success);color:white;padding:8px 16px;border-radius:8px;border:0;cursor:pointer}
+    .btn-warning{background:var(--warning);color:white;padding:8px 16px;border-radius:8px;border:0;cursor:pointer}
+    .btn-danger{background:var(--danger);color:white;padding:8px 16px;border-radius:8px;border:0;cursor:pointer}
+    input,select,textarea{width:100%;padding:8px;border-radius:8px;border:1px solid #e2e8f0;margin-top:6px}
+    label{font-size:13px;color:#223;font-weight:600}
+    .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+    .grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:20px}
+    .grid-4{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:20px}
+    table{width:100%;border-collapse:collapse;margin-top:12px}
+    th,td{padding:12px;border-bottom:1px solid #eef3f2;text-align:left}
+    th{background:#f8f9fa;font-weight:600}
+    .weather-card{background:linear-gradient(135deg, #74b9ff, #0984e3);color:white;padding:20px;border-radius:12px;text-align:center}
+    .crop-card{border:2px solid #ddd;border-radius:8px;padding:15px;margin:10px 0;transition:all 0.3s ease}
+    .crop-card:hover{border-color:var(--accent);box-shadow:0 4px 12px rgba(47,143,106,0.2)}
+    .crop-card.recommended{border-color:var(--success);background:#f8fff8}
+    .season-badge{padding:4px 8px;border-radius:20px;font-size:12px;font-weight:600}
+    .season-spring{background:#27ae60;color:white}
+    .season-summer{background:#f39c12;color:white}
+    .season-autumn{background:#e67e22;color:white}
+    .season-winter{background:#3498db;color:white}
+    .activity-log{max-height:300px;overflow-y:auto}
+    .activity-item{padding:10px;border-left:4px solid var(--accent);margin:10px 0;background:#f8f9fa}
+    .market-trend-up{color:var(--success);font-weight:600}
+    @keyframes spin{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}
+    .market-trend-down{color:var(--danger);font-weight:600}
+    .market-trend-stable{color:var(--warning);font-weight:600}
+    .forecast-day{text-align:center;padding:15px;border:1px solid #eee;border-radius:8px;margin:5px}
+    .ml-prediction{background:linear-gradient(135deg, #a29bfe, #6c5ce7);color:white;padding:20px;border-radius:12px}
+    .tip-card{background:#fff3cd;border-left:5px solid var(--warning);padding:15px;margin:10px 0}
+    .calendar-grid{display:grid;grid-template-columns:repeat(7, 1fr);gap:2px;margin-top:10px}
+    .calendar-day{padding:10px;text-align:center;border:1px solid #eee;min-height:60px;position:relative;background:white;transition:all 0.3s ease;cursor:pointer}
+    .calendar-day:hover{background:#f0f8ff;border-color:#74b9ff}
+    .calendar-day.today{background:#e8f5e8;border-color:var(--success);font-weight:600}
+    .calendar-day.has-activity{background:#e8f5e8;border-color:var(--success)}
+    .calendar-day.planting-season{background:#d1f2eb;border-color:#27ae60}
+    .calendar-day.harvest-season{background:#d4edda;border-color:var(--success)}
+    .calendar-day.maintenance-season{background:#ffeaa7;border-color:#fdcb6e}
+    .calendar-day.other-month{color:#ccc;background:#f8f9fa}
+    .activity-label{font-size:9px;background:rgba(255,255,255,0.9);border-radius:3px;padding:1px 3px;margin:1px 0;display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    @media (max-width:1024px){.grid-4,.grid-3,.grid-2{grid-template-columns:1fr} .container{padding:12px}}
+  </style>
+</head>
+<body>
+  <header>
+    <div class="brand">
+      <div class="logo">🌾</div>
+      <div>
+        <div style="font-weight:700">Crop Planning & Seasonal Guide</div>
+        <div style="color:var(--muted)">Smart farming decisions with data insights</div>
+      </div>
+    </div>
+    <div style="display:flex;gap:12px;align-items:center">
+      <a href="/dashboard" class="btn-secondary">Back to Dashboard</a>
+      <button id="refreshData" class="btn">Refresh Data</button>
+    </div>
+  </header>
+
+  <div class="container">
+    <!-- Location & Settings -->
+    <div class="card">
+      <h2 style="margin-top:0">📍 Location & Farm Settings</h2>
+      <div class="grid-2">
+        <div>
+          <label>Current Location (City Name)</label>
+          <div style="display: flex; gap: 10px; margin-top: 6px;">
+            <input type="text" id="locationInput" placeholder="Enter city name (e.g., Mumbai, Delhi, Bangalore)" style="flex: 1;">
+            <button class="btn" id="updateLocation">Update Location</button>
+          </div>
+          <div id="currentLocationDisplay" style="margin-top: 8px; padding: 8px; background: #e8f5e8; border-radius: 5px; font-size: 14px;">
+            <strong>Current:</strong> <span id="displayLocation">Bhimavaram (Default)</span>
+          </div>
+        </div>
+        <div>
+          <label>Soil Type</label>
+          <select id="soilType">
+            <option value="alluvial">Alluvial Soil</option>
+            <option value="black">Black Soil (Regur)</option>
+            <option value="red">Red Soil</option>
+            <option value="laterite">Laterite Soil</option>
+            <option value="sandy">Sandy Soil</option>
+            <option value="clay">Clay Soil</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Weather Forecast -->
+    <div class="card">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+        <h2 style="margin:0">🌤️ Weather Forecast</h2>
+        <button class="btn btn-primary" id="refreshWeather" style="padding: 8px 16px; font-size: 14px;">
+          <i class="fas fa-sync-alt"></i> Refresh
+        </button>
+      </div>
+      <div id="weatherLoader" style="display: none; text-align: center; padding: 20px;">
+        <div style="display: inline-block; width: 20px; height: 20px; border: 3px solid #f3f3f3; border-top: 3px solid #007bff; border-radius: 50%; animation: spin 1s linear infinite;"></div>
+        <p style="margin-top: 10px;">Fetching weather data...</p>
+      </div>
+      <div id="weatherForecast" class="grid-4">
+        <!-- Weather cards will be populated here -->
+        <div class="forecast-day weather-card">
+          <div style="font-weight:600">Today</div>
+          <div style="font-size:24px;margin:10px 0">🌤️</div>
+          <div>28°C</div>
+          <div style="font-size:12px;margin-top:5px">Partly Cloudy</div>
+          <div style="font-size:12px;color:#b3d9ff">Rain: 20%</div>
+        </div>
+        <div class="forecast-day weather-card">
+          <div style="font-weight:600">Tomorrow</div>
+          <div style="font-size:24px;margin:10px 0">🌦️</div>
+          <div>26°C</div>
+          <div style="font-size:12px;margin-top:5px">Light Rain</div>
+          <div style="font-size:12px;color:#b3d9ff">Rain: 70%</div>
+        </div>
+        <div class="forecast-day weather-card">
+          <div style="font-weight:600">Day 3</div>
+          <div style="font-size:24px;margin:10px 0">☀️</div>
+          <div>30°C</div>
+          <div style="font-size:12px;margin-top:5px">Sunny</div>
+          <div style="font-size:12px;color:#b3d9ff">Rain: 5%</div>
+        </div>
+        <div class="forecast-day weather-card">
+          <div style="font-weight:600">Day 4</div>
+          <div style="font-size:24px;margin:10px 0">☀️</div>
+          <div>32°C</div>
+          <div style="font-size:12px;margin-top:5px">Sunny</div>
+          <div style="font-size:12px;color:#b3d9ff">Rain: 0%</div>
+        </div>
+      </div>
+      <div id="weatherError" style="display: none; padding: 15px; background-color: #fff3cd; border: 1px solid #ffeaa7; border-radius: 5px; color: #856404;">
+        <i class="fas fa-exclamation-triangle" style="margin-right: 8px;"></i>
+        <span>Unable to load weather data. Please try again later.</span>
+      </div>
+    </div>
+
+    <!-- ML Predictions & Crop Suggestions -->
+    <div class="grid-2">
+      <div class="card">
+        <h3 style="margin-top:0">🤖 AI Crop Recommendations</h3>
+        <div class="ml-prediction">
+          <h4 style="margin-top:0">Based on Current Weather Data & ML Model</h4>
+          <div id="mlLoader" style="display: none; text-align: center; padding: 10px;">
+            <div style="display: inline-block; width: 16px; height: 16px; border: 2px solid #f3f3f3; border-top: 2px solid #ffffff; border-radius: 50%; animation: spin 1s linear infinite;"></div>
+            <span style="margin-left: 10px;">Analyzing weather data...</span>
+          </div>
+          <div id="mlPredictions">
+            <p>Loading AI-powered crop recommendations based on your location's weather conditions...</p>
+            <ul id="predictionsList" style="margin:0">
+              <li><strong>Loading...</strong> Please wait while we analyze weather data</li>
+            </ul>
+          </div>
+          <div id="weatherInfo" style="margin-top: 10px; padding: 10px; background: rgba(255,255,255,0.2); border-radius: 5px; font-size: 13px;">
+            <strong>Weather Data:</strong> <span id="weatherDetails">Loading...</span>
+          </div>
+          
+          <!-- PDF Download Button -->
+          <div style="margin-top: 15px; text-align: center;">
+            <button id="downloadCropRecommendationsPdf" class="btn" style="background: rgba(255,255,255,0.9); color: #6c5ce7; border: 2px solid rgba(255,255,255,0.3);">
+              📄 Download Recommendations PDF
+            </button>
+          </div>
+        </div>
+        
+        <div style="margin-top:20px">
+          <h4>Suggested Crops for Your Location & Soil</h4>
+          <div id="cropSuggestions">
+            <!-- Dynamic crop cards will be inserted here -->
+            <div class="crop-card">
+              <h5 style="margin:0 0 10px 0">� Loading Recommendations...</h5>
+              <p style="margin:5px 0">Please wait while we analyze your location's weather data</p>
+              <div>
+                <span class="season-badge season-winter">Analyzing...</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3 style="margin-top:0">📈 Local Market Insights</h3>
+        <div id="marketLoader" style="display: none; text-align: center; padding: 20px;">
+          <div style="display: inline-block; width: 20px; height: 20px; border: 3px solid #f3f3f3; border-top: 3px solid #007bff; border-radius: 50%; animation: spin 1s linear infinite;"></div>
+          <p style="margin-top: 10px;">Fetching market data...</p>
+        </div>
+        <div id="marketInsights">
+          <table id="marketTable">
+            <thead>
+              <tr><th>Crop</th><th>Current Price</th><th>Trend</th><th>Demand</th></tr>
+            </thead>
+            <tbody id="marketTableBody">
+              <tr>
+                <td>Loading...</td>
+                <td>Loading...</td>
+                <td>Loading...</td>
+                <td>Loading...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        
+        <div id="marketTip" style="margin-top:15px;padding:15px;background:#d4edda;border-radius:8px">
+          <strong>💰 Market Tip:</strong> <span id="marketTipText">Loading market insights...</span>
+        </div>
+        
+        <div id="marketError" style="display: none; margin-top: 15px; padding: 15px; background-color: #fff3cd; border: 1px solid #ffeaa7; border-radius: 5px; color: #856404;">
+          <i class="fas fa-exclamation-triangle" style="margin-right: 8px;"></i>
+          <span>Unable to load market data. Showing default information.</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Smart Crop Calendar -->
+    <div class="card">
+      <h3 style="margin-top:0">📅 Smart Crop Calendar</h3>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:15px">
+        <div style="display:flex;align-items:center;gap:10px">
+          <button class="btn-secondary" id="prevMonth">← Previous</button>
+          <span id="currentMonthYear" style="margin:0 15px;font-weight:600;min-width:160px;text-align:center">September 2025</span>
+          <button class="btn-secondary" id="nextMonth">Next →</button>
+        </div>
+        <div style="display:flex;gap:10px;align-items:center">
+          <span style="background:#d1f2eb;padding:5px 10px;border-radius:5px;font-size:12px;color:#27ae60;border:1px solid #27ae60">🌱 Planting</span>
+          <span style="background:#d4edda;padding:5px 10px;border-radius:5px;font-size:12px;color:#155724;border:1px solid var(--success)">🌾 Harvest</span>
+          <span style="background:#ffeaa7;padding:5px 10px;border-radius:5px;font-size:12px;color:#6c757d;border:1px solid #fdcb6e">🚜 Maintenance</span>
+        </div>
+      </div>
+      
+      <div id="calendarLoader" style="display:none;text-align:center;padding:20px">
+        <div style="display: inline-block; width: 20px; height: 20px; border: 3px solid #f3f3f3; border-top: 3px solid #007bff; border-radius: 50%; animation: spin 1s linear infinite;"></div>
+        <p style="margin-top: 10px;">Generating crop calendar based on recommendations...</p>
+      </div>
+      
+      <div id="cropCalendarGrid" class="calendar-grid">
+        <div style="font-weight:600;text-align:center;padding:10px">Sun</div>
+        <div style="font-weight:600;text-align:center;padding:10px">Mon</div>
+        <div style="font-weight:600;text-align:center;padding:10px">Tue</div>
+        <div style="font-weight:600;text-align:center;padding:10px">Wed</div>
+        <div style="font-weight:600;text-align:center;padding:10px">Thu</div>
+        <div style="font-weight:600;text-align:center;padding:10px">Fri</div>
+        <div style="font-weight:600;text-align:center;padding:10px">Sat</div>
+        <!-- Calendar days will be dynamically generated here -->
+      </div>
+      
+      <div id="calendarLegend" style="margin-top:15px;padding:15px;background:#f8f9fa;border-radius:8px">
+        <h4 style="margin:0 0 10px 0">📋 Current Month Activities for Top Crops</h4>
+        <div id="cropActivities" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px">
+          <!-- Crop-specific activities will be shown here -->
+          <div style="padding:8px;background:white;border-radius:5px;border-left:3px solid var(--success)">
+            <strong>Loading crop calendar...</strong>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Seasonal Tips & Farming Journal -->
+    <div class="grid-2">
+      <div class="card">
+        <h3 style="margin-top:0">💡 Seasonal Tips</h3>
+        <div class="tip-card">
+          <h4 style="margin:0 0 10px 0">🍂 September - Autumn Preparations</h4>
+          <ul style="margin:0">
+            <li>Start preparing fields for Rabi season crops</li>
+            <li>Complete harvesting of Kharif crops (rice, cotton)</li>
+            <li>Apply organic manure to improve soil fertility</li>
+            <li>Check irrigation systems before winter planting</li>
+          </ul>
+        </div>
+        
+        <div style="margin-top:15px">
+          <h4>Upcoming Seasonal Activities</h4>
+          <div style="padding:10px;background:#f8f9fa;border-radius:8px;margin:10px 0">
+            <strong>October:</strong> Begin wheat and mustard sowing, pest control for standing crops
+          </div>
+          <div style="padding:10px;background:#f8f9fa;border-radius:8px;margin:10px 0">
+            <strong>November:</strong> Monitor crop growth, apply fertilizers, prepare for cold weather
+          </div>
+          <div style="padding:10px;background:#f8f9fa;border-radius:8px;margin:10px 0">
+            <strong>December:</strong> Protect crops from frost, plan for Rabi harvest schedule
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3 style="margin-top:0">📖 Farming Journal</h3>
+        <div style="margin-bottom:15px">
+          <label>Add New Activity</label>
+          <div style="display:flex;gap:10px;margin-top:10px">
+            <select id="activityType" style="width:auto">
+              <option value="planting">Planting</option>
+              <option value="watering">Watering</option>
+              <option value="fertilizing">Fertilizing</option>
+              <option value="pest-control">Pest Control</option>
+              <option value="harvesting">Harvesting</option>
+              <option value="soil-prep">Soil Preparation</option>
+            </select>
+            <input type="text" id="activityNote" placeholder="Activity details..." style="flex:1">
+            <button class="btn-success" id="addActivity">Add</button>
+          </div>
+        </div>
+        
+        <div class="activity-log" id="activityLog">
+          <div class="activity-item">
+            <div style="font-weight:600">🌱 Planting - Sept 8, 2025</div>
+            <div>Planted wheat seeds in north field (2 acres)</div>
+          </div>
+          <div class="activity-item">
+            <div style="font-weight:600">💧 Watering - Sept 7, 2025</div>
+            <div>Irrigated rice crop after 3 dry days</div>
+          </div>
+          <div class="activity-item">
+            <div style="font-weight:600">🌾 Harvesting - Sept 5, 2025</div>
+            <div>Completed cotton harvesting in south field</div>
+          </div>
+          <div class="activity-item">
+            <div style="font-weight:600">🧪 Fertilizing - Sept 3, 2025</div>
+            <div>Applied NPK fertilizer to maize crop</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Alerts & Reminders -->
+    <div class="card">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+        <h4 style="margin:0">� Smart Alerts & Reminders</h4>
+        <button class="btn btn-primary" id="refreshAlerts" style="padding: 6px 12px; font-size: 12px;">
+          <i class="fas fa-sync-alt"></i> Refresh Alerts
+        </button>
+      </div>
+      
+      <div id="alertsLoader" style="display: none; text-align: center; padding: 20px;">
+        <div style="display: inline-block; width: 20px; height: 20px; border: 3px solid #f3f3f3; border-top: 3px solid #007bff; border-radius: 50%; animation: spin 1s linear infinite;"></div>
+        <p style="margin-top: 10px;">Analyzing your farming activities...</p>
+      </div>
+      
+      <div id="alertsContainer">
+        <!-- Dynamic alerts will be inserted here -->
+        <div style="padding:10px;background:#e8f5e8;border-radius:8px;margin:10px 0;border-left:4px solid var(--success)">
+          <strong>� Smart Analysis:</strong> Analyzing your farming journal with intelligent rule-based logic to generate personalized alerts and recommendations.
+        </div>
+      </div>
+      
+      <div id="alertsInfo" style="margin-top: 15px; padding: 10px; background: #f8f9fa; border-radius: 5px; font-size: 12px; color: #666;">
+        <strong>🤖 Intelligent Insights:</strong> <span id="alertsInfoText">These alerts are generated using Google Gemini AI + OpenAI, analyzing your journal patterns and providing expert recommendations.</span>
+      </div>
+      
+      <div id="alertsError" style="display: none; margin-top: 15px; padding: 15px; background-color: #fff3cd; border: 1px solid #ffeaa7; border-radius: 5px; color: #856404;">
+        <i class="fas fa-exclamation-triangle" style="margin-right: 8px;"></i>
+        <span>Alert system temporarily unavailable. Showing basic farming alerts instead.</span>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Initialize page functionality
+    document.addEventListener('DOMContentLoaded', function() {
+      console.log('Crop Planning page loaded');
+      
+      // Global variables for current location and calendar
+      let currentLocation = {
+        name: 'Bhimavaram',
+        lat: 16.5449,
+        lon: 81.5212
+      };
+      
+      // Calendar state
+      let currentCalendarDate = new Date(2025, 8, 10); // September 10, 2025
+      let topCrops = ['Rice', 'Wheat', 'Cotton']; // Default crops, will be updated from ML predictions
+      
+      // Crop calendar data - planting and harvesting schedules for Indian crops
+      const cropSchedules = {
+        'Rice': {
+          planting: [5, 6, 7], // May, June, July
+          harvest: [10, 11], // October, November
+          maintenance: [8, 9], // August, September
+          emoji: '🌾',
+          activities: {
+            5: ['Land preparation', 'Nursery preparation'],
+            6: ['Transplanting', 'First irrigation'],
+            7: ['Fertilizer application', 'Weed control'],
+            8: ['Pest monitoring', 'Water management'],
+            9: ['Panicle initiation care', 'Disease control'],
+            10: ['Harvest preparation', 'Drying arrangements'],
+            11: ['Harvesting', 'Post-harvest processing']
+          }
+        },
+        'Wheat': {
+          planting: [10, 11, 12], // October, November, December
+          harvest: [3, 4], // March, April
+          maintenance: [1, 2], // January, February
+          emoji: '🌾',
+          activities: {
+            10: ['Field preparation', 'Seed treatment'],
+            11: ['Sowing', 'First irrigation'],
+            12: ['First weeding', 'Fertilizer application'],
+            1: ['Second irrigation', 'Pest control'],
+            2: ['Disease monitoring', 'Growth regulation'],
+            3: ['Harvest timing', 'Crop cutting'],
+            4: ['Threshing', 'Storage preparation']
+          }
+        },
+        'Cotton': {
+          planting: [4, 5, 6], // April, May, June
+          harvest: [9, 10, 11], // September, October, November
+          maintenance: [7, 8], // July, August
+          emoji: '🌱',
+          activities: {
+            4: ['Field preparation', 'Seed selection'],
+            5: ['Sowing', 'Gap filling'],
+            6: ['First weeding', 'Thinning'],
+            7: ['Pest management', 'Fertilizer application'],
+            8: ['Disease control', 'Water management'],
+            9: ['First picking', 'Quality check'],
+            10: ['Second picking', 'Ginning preparation'],
+            11: ['Final harvest', 'Storage']
+          }
+        },
+        'Maize': {
+          planting: [6, 7], // June, July (Kharif)
+          harvest: [10, 11], // October, November
+          maintenance: [8, 9], // August, September
+          emoji: '🌽',
+          activities: {
+            6: ['Land preparation', 'Seed treatment'],
+            7: ['Sowing', 'Early irrigation'],
+            8: ['Weeding', 'Fertilizer application'],
+            9: ['Pest control', 'Disease monitoring'],
+            10: ['Maturity check', 'Harvest preparation'],
+            11: ['Harvesting', 'Drying and storage']
+          }
+        },
+        'Sugarcane': {
+          planting: [2, 3, 10, 11], // February, March, October, November
+          harvest: [12, 1, 2, 3], // December, January, February, March
+          maintenance: [4, 5, 6, 7, 8, 9], // Most of the year
+          emoji: '🎋',
+          activities: {
+            2: ['Field preparation', 'Planting (spring)'],
+            3: ['Irrigation setup', 'Gap filling'],
+            10: ['Field preparation', 'Planting (autumn)'],
+            11: ['Early care', 'Weed control'],
+            12: ['Harvest begins', 'Transport arrangement'],
+            1: ['Peak harvest', 'Mill coordination']
+          }
+        },
+        'Pulses': {
+          planting: [10, 11], // October, November (Rabi)
+          harvest: [3, 4], // March, April
+          maintenance: [12, 1, 2], // December, January, February
+          emoji: '🫘',
+          activities: {
+            10: ['Seed treatment', 'Land preparation'],
+            11: ['Sowing', 'Rhizobium application'],
+            12: ['Weed management', 'Pest monitoring'],
+            1: ['Disease control', 'Growth monitoring'],
+            2: ['Pod formation care', 'Water management'],
+            3: ['Maturity assessment', 'Harvest timing'],
+            4: ['Harvesting', 'Post-harvest handling']
+          }
+        },
+        'Mustard': {
+          planting: [10, 11], // October, November
+          harvest: [2, 3, 4], // February, March, April
+          maintenance: [12, 1], // December, January
+          emoji: '🌻',
+          activities: {
+            10: ['Field preparation', 'Seed bed preparation'],
+            11: ['Sowing', 'Irrigation'],
+            12: ['Thinning', 'First weeding'],
+            1: ['Fertilizer application', 'Pest control'],
+            2: ['Disease monitoring', 'Flowering care'],
+            3: ['Pod development', 'Harvest preparation'],
+            4: ['Harvesting', 'Threshing']
+          }
+        },
+        'Barley': {
+          planting: [10, 11, 12], // October, November, December
+          harvest: [3, 4], // March, April
+          maintenance: [1, 2], // January, February
+          emoji: '🌾',
+          activities: {
+            10: ['Land preparation', 'Seed selection'],
+            11: ['Sowing', 'Early irrigation'],
+            12: ['Weed control', 'Fertilizer application'],
+            1: ['Disease monitoring', 'Growth regulation'],
+            2: ['Pest management', 'Water management'],
+            3: ['Maturity check', 'Harvest timing'],
+            4: ['Harvesting', 'Storage preparation']
+          }
+        }
+      };
+      
+      // Function to generate calendar for a specific month and year
+      function generateCalendar(year, month) {
+        const firstDay = new Date(year, month, 1);
+        const lastDay = new Date(year, month + 1, 0);
+        const startDate = new Date(firstDay);
+        startDate.setDate(startDate.getDate() - firstDay.getDay()); // Start from Sunday
+        
+        const monthNames = [
+          'January', 'February', 'March', 'April', 'May', 'June',
+          'July', 'August', 'September', 'October', 'November', 'December'
+        ];
+        
+        // Update month display
+        document.getElementById('currentMonthYear').textContent = `${monthNames[month]} ${year}`;
+        
+        const calendarGrid = document.getElementById('cropCalendarGrid');
+        const today = new Date(2025, 8, 10); // Current date: September 10, 2025
+        
+        // Clear existing calendar days (keep headers)
+        const headers = calendarGrid.querySelectorAll('div').length > 7 ? 
+                       Array.from(calendarGrid.children).slice(0, 7) : 
+                       Array.from(calendarGrid.children);
+        calendarGrid.innerHTML = '';
+        headers.forEach(header => calendarGrid.appendChild(header));
+        
+        // Generate calendar days
+        const currentDate = new Date(startDate);
+        for (let week = 0; week < 6; week++) {
+          for (let day = 0; day < 7; day++) {
+            const dayElement = document.createElement('div');
+            dayElement.className = 'calendar-day';
+            
+            const dayNumber = currentDate.getDate();
+            const isCurrentMonth = currentDate.getMonth() === month;
+            const isToday = currentDate.toDateString() === today.toDateString();
+            
+            // Set day number
+            dayElement.innerHTML = `<div style="font-weight:${isToday ? '700' : '400'}">${dayNumber}</div>`;
+            
+            // Add classes based on conditions
+            if (!isCurrentMonth) {
+              dayElement.classList.add('other-month');
+            }
+            if (isToday) {
+              dayElement.classList.add('today');
+            }
+            
+            // Add crop activities for current month days
+            if (isCurrentMonth) {
+              addCropActivities(dayElement, currentDate, topCrops);
+            }
+            
+            calendarGrid.appendChild(dayElement);
+            currentDate.setDate(currentDate.getDate() + 1);
+          }
+        }
+        
+        // Update crop activities legend
+        updateCropActivitiesLegend(month + 1, topCrops);
+      }
+      
+      // Function to add crop activities to a calendar day
+      function addCropActivities(dayElement, date, crops) {
+        const month = date.getMonth() + 1; // JavaScript months are 0-indexed
+        const dayNumber = date.getDate();
+        
+        crops.forEach(cropName => {
+          if (cropSchedules[cropName]) {
+            const crop = cropSchedules[cropName];
+            let activityType = '';
+            let activityClass = '';
+            
+            // Determine activity type for this month
+            if (crop.planting.includes(month)) {
+              activityType = 'planting-season';
+              activityClass = 'planting-season';
+            } else if (crop.harvest.includes(month)) {
+              activityType = 'harvest-season';
+              activityClass = 'harvest-season';
+            } else if (crop.maintenance.includes(month)) {
+              activityType = 'maintenance-season';
+              activityClass = 'maintenance-season';
+            }
+            
+            if (activityType) {
+              dayElement.classList.add(activityClass);
+              
+              // Add specific activities for certain days
+              const activities = crop.activities[month] || [];
+              if (activities.length > 0) {
+                // Add activities to specific days (randomly distributed)
+                const activityIndex = (dayNumber - 1) % activities.length;
+                if (dayNumber % 7 === 1 || dayNumber % 7 === 4) { // Show on certain days
+                  const activityLabel = document.createElement('div');
+                  activityLabel.className = 'activity-label';
+                  activityLabel.textContent = `${crop.emoji} ${activities[activityIndex]}`;
+                  activityLabel.style.color = activityType === 'planting-season' ? '#27ae60' : 
+                                            activityType === 'harvest-season' ? '#155724' : '#6c757d';
+                  dayElement.appendChild(activityLabel);
+                }
+              }
+            }
+          }
+        });
+      }
+      
+      // Function to update crop activities legend
+      function updateCropActivitiesLegend(month, crops) {
+        const cropActivities = document.getElementById('cropActivities');
+        
+        const activitiesHTML = crops.map(cropName => {
+          if (cropSchedules[cropName]) {
+            const crop = cropSchedules[cropName];
+            const activities = crop.activities[month] || [];
+            
+            let activityType = '';
+            let borderColor = '#dee2e6';
+            
+            if (crop.planting.includes(month)) {
+              activityType = 'Planting Season';
+              borderColor = '#27ae60';
+            } else if (crop.harvest.includes(month)) {
+              activityType = 'Harvest Season';
+              borderColor = 'var(--success)';
+            } else if (crop.maintenance.includes(month)) {
+              activityType = 'Maintenance';
+              borderColor = '#fdcb6e';
+            } else {
+              activityType = 'Off Season';
+            }
+            
+            return `
+              <div style="padding:12px;background:white;border-radius:5px;border-left:4px solid ${borderColor}">
+                <div style="font-weight:600;margin-bottom:5px">${crop.emoji} ${cropName}</div>
+                <div style="font-size:12px;color:var(--muted);margin-bottom:8px">${activityType}</div>
+                ${activities.length > 0 ? 
+                  `<ul style="margin:0;padding-left:15px;font-size:11px">
+                    ${activities.map(activity => `<li>${activity}</li>`).join('')}
+                   </ul>` : 
+                  '<div style="font-size:11px;color:#999">No specific activities this month</div>'
+                }
+              </div>
+            `;
+          }
+          return '';
+        }).join('');
+        
+        if (cropActivities) {
+          cropActivities.innerHTML = activitiesHTML || '<div style="padding:8px;background:white;border-radius:5px">Loading crop activities...</div>';
+        }
+      }
+      
+      // Function to update calendar when top crops change
+      function updateCalendarWithCrops(newTopCrops) {
+        console.log('🗓️ Updating calendar with new top crops:', newTopCrops);
+        topCrops = newTopCrops;
+        
+        // Generate calendar with AI-enhanced activities
+        generateSmartCalendar(currentCalendarDate.getFullYear(), currentCalendarDate.getMonth(), newTopCrops);
+      }
+      
+      // Enhanced function to generate smart calendar with AI-powered activities
+      function generateSmartCalendar(year, month, crops) {
+        console.log('🤖 Generating smart calendar with AI assistance...');
+        
+        // Show calendar loader
+        const calendarLoader = document.getElementById('calendarLoader');
+        if (calendarLoader) calendarLoader.style.display = 'block';
+        
+        // First generate the basic calendar structure
+        generateCalendar(year, month);
+        
+        // Then fetch AI-powered activities from the backend
+        const cropsParam = crops.map(crop => `crops=${encodeURIComponent(crop)}`).join('&');
+        fetch(`/api/smart_calendar?month=${month + 1}&year=${year}&${cropsParam}`)
+          .then(response => response.json())
+          .then(data => {
+            if (calendarLoader) calendarLoader.style.display = 'none';
+            
+            if (data.success && data.calendar_data) {
+              console.log('✅ Smart calendar data received:', data.calendar_data);
+              
+              // Update calendar with AI-generated activities
+              updateCalendarWithActivities(data.calendar_data.activities);
+              
+              // Update the info display
+              const calendarLegend = document.getElementById('calendarLegend');
+              if (calendarLegend) {
+                const aiLabel = data.ai_generated ? 
+                  '<span style="background:#28a745;color:white;padding:2px 6px;border-radius:10px;font-size:10px;margin-left:8px;">AI-POWERED</span>' :
+                  '<span style="background:#6c757d;color:white;padding:2px 6px;border-radius:10px;font-size:10px;margin-left:8px;">BASIC</span>';
+                
+                calendarLegend.querySelector('h4').innerHTML = `📋 ${data.calendar_data.month_name} Activities for Top Crops ${aiLabel}`;
+              }
+            } else {
+              console.error('Failed to load smart calendar data:', data.error);
+              // Fallback to basic calendar
+              generateCalendar(year, month);
+            }
+          })
+          .catch(error => {
+            console.error('Error fetching smart calendar:', error);
+            if (calendarLoader) calendarLoader.style.display = 'none';
+            // Fallback to basic calendar
+            generateCalendar(year, month);
+          });
+      }
+      
+      // Function to update calendar with AI-generated activities
+      function updateCalendarWithActivities(activities) {
+        console.log('📅 Updating calendar with AI activities:', activities);
+        
+        const calendarGrid = document.getElementById('cropCalendarGrid');
+        const calendarDays = calendarGrid.querySelectorAll('.calendar-day:not([style*="font-weight:600"])'); // Exclude headers
+        
+        // Clear existing activity labels
+        calendarDays.forEach(day => {
+          const existingLabels = day.querySelectorAll('.activity-label');
+          existingLabels.forEach(label => label.remove());
+        });
+        
+        // Add AI-generated activities to specific dates
+        activities.forEach(activity => {
+          const dates = activity.dates || [];
+          dates.forEach(dateNum => {
+            const dayElement = Array.from(calendarDays).find(day => {
+              const dayText = day.textContent.trim();
+              return dayText.startsWith(dateNum.toString()) && !day.classList.contains('other-month');
+            });
+            
+            if (dayElement) {
+              // Add appropriate class based on activity type
+              if (activity.activity.toLowerCase().includes('plant') || activity.activity.toLowerCase().includes('sow')) {
+                dayElement.classList.add('planting-season');
+              } else if (activity.activity.toLowerCase().includes('harvest')) {
+                dayElement.classList.add('harvest-season');
+              } else {
+                dayElement.classList.add('maintenance-season');
+              }
+              
+              // Add activity label
+              const activityLabel = document.createElement('div');
+              activityLabel.className = 'activity-label';
+              activityLabel.textContent = `${getCropEmoji(activity.crop)} ${activity.activity}`;
+              activityLabel.style.color = activity.priority === 'high' ? '#d63384' : 
+                                        activity.priority === 'medium' ? '#fd7e14' : '#6c757d';
+              activityLabel.title = `${activity.crop}: ${activity.description || activity.activity}`;
+              dayElement.appendChild(activityLabel);
+            }
+          });
+        });
+        
+        // Update crop activities legend with AI data
+        updateSmartCropActivitiesLegend(activities);
+      }
+      
+      // Helper function to get crop emoji
+      function getCropEmoji(cropName) {
+        const cropEmojis = {
+          'Rice': '🌾',
+          'Wheat': '🌾', 
+          'Cotton': '🌱',
+          'Sugarcane': '🎋',
+          'Maize': '🌽',
+          'Pulses': '🫘',
+          'Mustard': '🌻',
+          'Barley': '🌾'
+        };
+        return cropEmojis[cropName] || '🌱';
+      }
+      
+      // Function to update crop activities legend with AI data
+      function updateSmartCropActivitiesLegend(activities) {
+        const cropActivities = document.getElementById('cropActivities');
+        
+        // Group activities by crop
+        const activitiesByCrop = {};
+        activities.forEach(activity => {
+          if (!activitiesByCrop[activity.crop]) {
+            activitiesByCrop[activity.crop] = [];
+          }
+          activitiesByCrop[activity.crop].push(activity);
+        });
+        
+        const activitiesHTML = Object.keys(activitiesByCrop).map(cropName => {
+          const cropActivities = activitiesByCrop[cropName];
+          const emoji = getCropEmoji(cropName);
+          
+          // Determine border color based on activity types
+          let borderColor = '#dee2e6';
+          const hasPlanting = cropActivities.some(a => a.activity.toLowerCase().includes('plant') || a.activity.toLowerCase().includes('sow'));
+          const hasHarvesting = cropActivities.some(a => a.activity.toLowerCase().includes('harvest'));
+          
+          if (hasPlanting) {
+            borderColor = '#27ae60';
+          } else if (hasHarvesting) {
+            borderColor = 'var(--success)';
+          } else {
+            borderColor = '#fdcb6e';
+          }
+          
+          return `
+            <div style="padding:12px;background:white;border-radius:5px;border-left:4px solid ${borderColor}">
+              <div style="font-weight:600;margin-bottom:5px">${emoji} ${cropName}</div>
+              <div style="font-size:12px;color:var(--muted);margin-bottom:8px">
+                ${hasPlanting ? 'Planting Season' : hasHarvesting ? 'Harvest Season' : 'Maintenance Period'}
+              </div>
+              <ul style="margin:0;padding-left:15px;font-size:11px">
+                ${cropActivities.map(activity => 
+                  `<li><strong>${activity.activity}</strong> (${activity.dates.join(', ')}) - ${activity.priority} priority</li>`
+                ).join('')}
+              </ul>
+            </div>
+          `;
+        }).join('');
+        
+        if (cropActivities) {
+          cropActivities.innerHTML = activitiesHTML || '<div style="padding:8px;background:white;border-radius:5px">Loading AI-powered crop activities...</div>';
+        }
+      }
+      document.getElementById('addActivity').addEventListener('click', function() {
+        const activityType = document.getElementById('activityType').value;
+        const activityNote = document.getElementById('activityNote').value.trim();
+        
+        if (!activityNote) {
+          alert('Please enter activity details');
+          return;
+        }
+        
+        const today = new Date().toLocaleDateString('en-CA'); // YYYY-MM-DD format
+        
+        // Save to database
+        fetch('/api/journal', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            activity: activityType,
+            activity_details: activityNote,
+            date: today
+          })
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            // Clear input
+            document.getElementById('activityNote').value = '';
+            
+            // Reload journal entries and alerts
+            loadJournalEntries();
+            loadFarmingAlerts();
+            
+            alert('Activity added to farming journal! Alerts updated based on your latest activities.');
+          } else {
+            alert('Failed to save activity: ' + (data.error || 'Unknown error'));
+          }
+        })
+        .catch(error => {
+          console.error('Error saving activity:', error);
+          alert('Failed to save activity. Please try again.');
+        });
+      });
+      
+      // Function to load journal entries from database
+      function loadJournalEntries() {
+        fetch('/api/journal')
+          .then(response => response.json())
+          .then(data => {
+            if (data.success) {
+              const activityLog = document.getElementById('activityLog');
+              
+              const activityIcons = {
+                'planting': '🌱',
+                'watering': '💧',
+                'fertilizing': '🧪',
+                'pest-control': '🐛',
+                'harvesting': '🌾',
+                'soil-prep': '🔨'
+              };
+              
+              // Clear existing entries
+              activityLog.innerHTML = '';
+              
+              // Add entries from database
+              data.entries.forEach(entry => {
+                const activityDisplayName = entry.activity.charAt(0).toUpperCase() + 
+                  entry.activity.slice(1).replace('-', ' ');
+                
+                const entryElement = document.createElement('div');
+                entryElement.className = 'activity-item';
+                entryElement.innerHTML = `
+                  <div style="font-weight:600">
+                    ${activityIcons[entry.activity] || '📝'} ${activityDisplayName} - ${entry.date}
+                    <button onclick="deleteJournalEntry(${entry.id})" style="float: right; background: #e74c3c; color: white; border: none; border-radius: 3px; padding: 2px 6px; font-size: 12px; cursor: pointer;">Delete</button>
+                  </div>
+                  <div>${entry.activity_details}</div>
+                `;
+                activityLog.appendChild(entryElement);
+              });
+              
+              // If no entries, show placeholder
+              if (data.entries.length === 0) {
+                activityLog.innerHTML = '<div style="text-align: center; color: #666; padding: 20px;">No journal entries yet. Add your first farming activity above!</div>';
+              }
+            } else {
+              console.error('Failed to load journal entries:', data.error);
+            }
+          })
+          .catch(error => {
+            console.error('Error loading journal entries:', error);
+          });
+      }
+      
+      // Function to delete journal entry
+      window.deleteJournalEntry = function(entryId) {
+        if (confirm('Are you sure you want to delete this journal entry?')) {
+          fetch('/api/delete_journal', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              entry_id: entryId
+            })
+          })
+          .then(response => response.json())
+          .then(data => {
+            if (data.success) {
+              // Reload journal entries and alerts
+              loadJournalEntries();
+              loadFarmingAlerts();
+              alert('Journal entry deleted successfully! Alerts updated.');
+            } else {
+              alert('Failed to delete entry: ' + (data.error || 'Unknown error'));
+            }
+          })
+          .catch(error => {
+            console.error('Error deleting entry:', error);
+            alert('Failed to delete entry. Please try again.');
+          });
+        }
+      };
+      
+      // Load journal entries on page load
+      loadJournalEntries();
+      
+      // Load farming alerts on page load
+      loadFarmingAlerts();
+      
+      // Refresh alerts functionality
+      document.getElementById('refreshAlerts').addEventListener('click', function() {
+        loadFarmingAlerts();
+      });
+      
+      // Update location functionality
+      document.getElementById('updateLocation').addEventListener('click', function() {
+        const cityName = document.getElementById('locationInput').value.trim();
+        
+        if (!cityName) {
+          alert('Please enter a city name');
+          return;
+        }
+        
+        updateLocationAndWeather(cityName);
+      });
+      
+      // Enter key support for location input
+      document.getElementById('locationInput').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+          document.getElementById('updateLocation').click();
+        }
+      });
+      
+      // Function to update location and fetch weather
+      function updateLocationAndWeather(cityName) {
+        const updateBtn = document.getElementById('updateLocation');
+        const originalText = updateBtn.textContent;
+        
+        // Show loading state
+        updateBtn.textContent = 'Updating...';
+        updateBtn.disabled = true;
+        
+        // First, get coordinates for the city
+        fetch(`/api/geocode?city=${encodeURIComponent(cityName)}`)
+          .then(response => response.json())
+          .then(data => {
+            if (data.success && data.location) {
+              // Update current location
+              currentLocation = {
+                name: data.location.name,
+                lat: data.location.lat,
+                lon: data.location.lon,
+                state: data.location.state,
+                country: data.location.country
+              };
+              
+              // Update display
+              const locationDisplay = data.location.state ? 
+                `${data.location.name}, ${data.location.state}` : 
+                `${data.location.name}, ${data.location.country}`;
+              
+              document.getElementById('displayLocation').textContent = locationDisplay;
+              document.getElementById('locationInput').value = '';
+              
+              // Load weather data and ML recommendations for new location
+              loadWeatherDataForLocation();
+              
+              alert(`Location updated to ${locationDisplay}!`);
+            } else {
+              alert(`Location "${cityName}" not found. Please try a different city name.`);
+            }
+          })
+          .catch(error => {
+            console.error('Error updating location:', error);
+            alert('Failed to update location. Please try again.');
+          })
+          .finally(() => {
+            // Reset button state
+            updateBtn.textContent = originalText;
+            updateBtn.disabled = false;
+          });
+      }
+      
+      // Refresh data functionality
+      document.getElementById('refreshData').addEventListener('click', function() {
+        loadWeatherDataForLocation();
+        alert('Data refreshed! Weather forecast, ML predictions, and market insights updated.');
+      });
+      
+      // Weather refresh functionality
+      document.getElementById('refreshWeather').addEventListener('click', function() {
+        loadWeatherDataForLocation();
+      });
+      
+      // Function to get weather emoji based on description
+      function getWeatherEmoji(description) {
+        const desc = description.toLowerCase();
+        if (desc.includes('clear') || desc.includes('sunny')) return '☀️';
+        if (desc.includes('cloud')) return '☁️';
+        if (desc.includes('rain') || desc.includes('drizzle')) return '🌧️';
+        if (desc.includes('storm') || desc.includes('thunder')) return '⛈️';
+        if (desc.includes('snow')) return '❄️';
+        if (desc.includes('mist') || desc.includes('fog')) return '🌫️';
+        if (desc.includes('partly') || desc.includes('scattered')) return '⛅';
+        return '🌤️'; // Default
+      }
+      
+      // Function to load ML crop recommendations
+      function loadCropRecommendations() {
+        const mlLoader = document.getElementById('mlLoader');
+        const predictionsList = document.getElementById('predictionsList');
+        const weatherDetails = document.getElementById('weatherDetails');
+        const cropSuggestions = document.getElementById('cropSuggestions');
+        
+        // Show loader
+        if (mlLoader) mlLoader.style.display = 'block';
+        
+        const url = `/api/crop_recommendations?lat=${currentLocation.lat}&lon=${currentLocation.lon}`;
+        
+        fetch(url)
+          .then(response => response.json())
+          .then(data => {
+            if (mlLoader) mlLoader.style.display = 'none';
+            
+            if (data.success && data.recommendations) {
+              // Update ML predictions list
+              const predictionsHTML = data.recommendations.map(crop => 
+                `<li><strong>${crop[0]}:</strong> ${Math.round(crop[1] * 100)}% success rate ${crop[1] > 0.8 ? '(highly recommended)' : crop[1] > 0.7 ? '(recommended)' : ''}</li>`
+              ).join('');
+              
+              if (predictionsList) {
+                predictionsList.innerHTML = predictionsHTML;
+              }
+              
+              // Update weather info
+              if (weatherDetails && data.weather_data) {
+                weatherDetails.textContent = `Temp: ${data.weather_data.temperature}°C, Humidity: ${data.weather_data.humidity}%, Rainfall: ${Math.round(data.weather_data.rainfall)}mm`;
+              }
+              
+              // Update crop suggestion cards
+              if (cropSuggestions) {
+                const cropEmojis = {
+                  'Rice': '🌱',
+                  'Wheat': '🌾', 
+                  'Cotton': '🌿',
+                  'Sugarcane': '🎋',
+                  'Maize': '🌽',
+                  'Pulses': '🫘',
+                  'Mustard': '🌻',
+                  'Barley': '🌾'
+                };
+                
+                const cropSeasons = {
+                  'Rice': 'Kharif Season',
+                  'Wheat': 'Rabi Season',
+                  'Cotton': 'Kharif Season',
+                  'Sugarcane': 'Annual Crop',
+                  'Maize': 'Kharif Season',
+                  'Pulses': 'Rabi Season',
+                  'Mustard': 'Rabi Season',
+                  'Barley': 'Rabi Season'
+                };
+                
+                const cropSeasonClass = {
+                  'Kharif Season': 'season-summer',
+                  'Rabi Season': 'season-winter',
+                  'Annual Crop': 'season-spring'
+                };
+                
+                const cardsHTML = data.recommendations.map((crop, index) => {
+                  const [cropName, probability] = crop;
+                  const emoji = cropEmojis[cropName] || '🌱';
+                  const season = cropSeasons[cropName] || 'Season-based';
+                  const seasonClass = cropSeasonClass[season] || 'season-spring';
+                  const isRecommended = probability > 0.8;
+                  const isGood = probability > 0.7;
+                  
+                  return `
+                    <div class="crop-card ${isRecommended ? 'recommended' : ''}">
+                      <h5 style="margin:0 0 10px 0">${emoji} ${cropName} ${isRecommended ? '(Highly Recommended)' : isGood ? '(Recommended)' : ''}</h5>
+                      <p style="margin:5px 0">Success Rate: ${Math.round(probability * 100)}% - Based on current weather conditions</p>
+                      <div>
+                        <span class="season-badge ${seasonClass}">${season}</span>
+                        <span style="margin-left:10px;color:${isRecommended ? 'var(--success)' : isGood ? 'var(--warning)' : 'var(--muted)'}">${isRecommended ? '✓ Highly suitable' : isGood ? '~ Suitable' : '○ Consider alternatives'}</span>
+                      </div>
+                    </div>
+                  `;
+                }).join('');
+                
+                cropSuggestions.innerHTML = cardsHTML;
+              }
+              
+              // Load market insights after crop recommendations are loaded
+              loadMarketInsights();
+              
+              // Update calendar with new top crops
+              const newTopCrops = data.recommendations.slice(0, 3).map(crop => crop[0]);
+              updateCalendarWithCrops(newTopCrops);
+              
+              console.log('ML crop recommendations loaded successfully');
+              console.log('📅 Smart calendar updated with top 3 crops:', newTopCrops);
+            } else {
+              console.error('Failed to load ML recommendations:', data.error);
+              if (predictionsList) {
+                predictionsList.innerHTML = '<li><strong>Error:</strong> Unable to load recommendations. Please try again later.</li>';
+              }
+            }
+          })
+          .catch(error => {
+            console.error('Error fetching ML recommendations:', error);
+            if (mlLoader) mlLoader.style.display = 'none';
+            if (predictionsList) {
+              predictionsList.innerHTML = '<li><strong>Error:</strong> Failed to connect to prediction service.</li>';
+            }
+          });
+      }
+      
+      // Function to load market insights based on top crops
+      function loadMarketInsights() {
+        const marketLoader = document.getElementById('marketLoader');
+        const marketTableBody = document.getElementById('marketTableBody');
+        const marketTipText = document.getElementById('marketTipText');
+        const marketError = document.getElementById('marketError');
+        
+        // Show loader
+        if (marketLoader) marketLoader.style.display = 'block';
+        if (marketError) marketError.style.display = 'none';
+        
+        const url = `/api/market_insights?lat=${currentLocation.lat}&lon=${currentLocation.lon}&location=${encodeURIComponent(currentLocation.name)}`;
+        
+        fetch(url)
+          .then(response => response.json())
+          .then(data => {
+            if (marketLoader) marketLoader.style.display = 'none';
+            
+            if (data.success && data.market_data && data.market_data.crops) {
+              // Update market table with real data
+              const tableHTML = data.market_data.crops.map(crop => {
+                // Determine trend class and icon
+                let trendClass = 'market-trend-stable';
+                let trendIcon = '→';
+                if (crop.trend === 'up') {
+                  trendClass = 'market-trend-up';
+                  trendIcon = '↗';
+                } else if (crop.trend === 'down') {
+                  trendClass = 'market-trend-down';
+                  trendIcon = '↘';
+                }
+                
+                // Determine demand class
+                let demandClass = 'market-trend-stable';
+                if (crop.demand === 'High') {
+                  demandClass = 'market-trend-up';
+                } else if (crop.demand === 'Low') {
+                  demandClass = 'market-trend-down';
+                }
+                
+                return `
+                  <tr>
+                    <td><strong>${crop.name}</strong></td>
+                    <td>${crop.price}</td>
+                    <td class="${trendClass}">${trendIcon} ${crop.trend_percentage}</td>
+                    <td class="${demandClass}">${crop.demand}</td>
+                  </tr>
+                `;
+              }).join('');
+              
+              if (marketTableBody) {
+                marketTableBody.innerHTML = tableHTML;
+              }
+              
+              // Update market tip
+              if (marketTipText && data.market_data.general_tip) {
+                marketTipText.textContent = data.market_data.general_tip;
+              }
+              
+              console.log('Market insights loaded successfully with AI-generated data');
+            } else {
+              console.error('Failed to load market insights:', data.error);
+              if (marketError) marketError.style.display = 'block';
+              
+              // Show fallback data
+              loadFallbackMarketData();
+            }
+          })
+          .catch(error => {
+            console.error('Error fetching market insights:', error);
+            if (marketLoader) marketLoader.style.display = 'none';
+            if (marketError) marketError.style.display = 'block';
+            
+            // Show fallback data
+            loadFallbackMarketData();
+          });
+      }
+      
+      // Function to load fallback market data
+      function loadFallbackMarketData() {
+        const marketTableBody = document.getElementById('marketTableBody');
+        const marketTipText = document.getElementById('marketTipText');
+        
+        const fallbackHTML = `
+          <tr>
+            <td><strong>Wheat</strong></td>
+            <td>₹2,200/quintal</td>
+            <td class="market-trend-up">↗ +5%</td>
+            <td class="market-trend-up">High</td>
+          </tr>
+          <tr>
+            <td><strong>Rice</strong></td>
+            <td>₹1,850/quintal</td>
+            <td class="market-trend-stable">→ Stable</td>
+            <td class="market-trend-stable">Medium</td>
+          </tr>
+          <tr>
+            <td><strong>Cotton</strong></td>
+            <td>₹5,500/quintal</td>
+            <td class="market-trend-up">↗ +3%</td>
+            <td class="market-trend-up">High</td>
+          </tr>
+        `;
+        
+        if (marketTableBody) {
+          marketTableBody.innerHTML = fallbackHTML;
+        }
+        
+        if (marketTipText) {
+          marketTipText.textContent = "Market conditions are favorable for diversified crop production. Monitor price trends regularly.";
+        }
+      }
+      
+      // Function to load weather data for current location
+      function loadWeatherDataForLocation() {
+        const weatherLoader = document.getElementById('weatherLoader');
+        const weatherForecast = document.getElementById('weatherForecast');
+        const weatherError = document.getElementById('weatherError');
+        
+        // Show loader, hide forecast and error
+        weatherLoader.style.display = 'block';
+        weatherForecast.style.display = 'none';
+        weatherError.style.display = 'none';
+        
+        const url = `/api/weather_forecast?lat=${currentLocation.lat}&lon=${currentLocation.lon}&location=${encodeURIComponent(currentLocation.name)}`;
+        
+        fetch(url)
+          .then(response => response.json())
+          .then(data => {
+            weatherLoader.style.display = 'none';
+            
+            if (data.success && data.forecast) {
+              // Update weather forecast with real data
+              const forecastHTML = data.forecast.map((day, index) => {
+                const dayLabel = index === 0 ? 'Today' : 
+                               index === 1 ? 'Tomorrow' : 
+                               `Day ${index + 1}`;
+                
+                return `
+                  <div class="forecast-day weather-card">
+                    <div style="font-weight:600">${dayLabel}</div>
+                    <div style="font-size:24px;margin:10px 0">${getWeatherEmoji(day.weather)}</div>
+                    <div>${day.avg_temp}°C</div>
+                    <div style="font-size:12px;margin-top:5px">${day.weather}</div>
+                    <div style="font-size:12px;color:#b3d9ff">Rain: ${day.rain_percent}%</div>
+                  </div>
+                `;
+              }).join('');
+              
+              weatherForecast.innerHTML = forecastHTML;
+              weatherForecast.style.display = 'grid';
+              
+              // Load ML recommendations after weather data is loaded
+              loadCropRecommendations();
+              
+              console.log(`Weather loaded for ${data.location || currentLocation.name}`);
+            } else {
+              // Show error message
+              weatherError.style.display = 'block';
+              weatherForecast.style.display = 'grid'; // Show default forecast
+              console.error('Weather data error:', data.error);
+            }
+          })
+          .catch(error => {
+            console.error('Error fetching weather data:', error);
+            weatherLoader.style.display = 'none';
+            weatherError.style.display = 'block';
+            weatherForecast.style.display = 'grid'; // Show default forecast
+          });
+      }
+      
+      // Legacy function for compatibility
+      function loadWeatherData() {
+        loadWeatherDataForLocation();
+      }
+      
+      // Load weather data on page load
+      loadWeatherDataForLocation();
+      
+      // Initialize smart calendar with current date and default crops
+      generateSmartCalendar(currentCalendarDate.getFullYear(), currentCalendarDate.getMonth(), topCrops);
+      
+      // Calendar navigation functionality
+      document.getElementById('prevMonth').addEventListener('click', function() {
+        currentCalendarDate.setMonth(currentCalendarDate.getMonth() - 1);
+        generateSmartCalendar(currentCalendarDate.getFullYear(), currentCalendarDate.getMonth(), topCrops);
+        console.log('📅 Navigated to previous month:', currentCalendarDate.toLocaleDateString());
+      });
+      
+      document.getElementById('nextMonth').addEventListener('click', function() {
+        currentCalendarDate.setMonth(currentCalendarDate.getMonth() + 1);
+        generateSmartCalendar(currentCalendarDate.getFullYear(), currentCalendarDate.getMonth(), topCrops);
+        console.log('📅 Navigated to next month:', currentCalendarDate.toLocaleDateString());
+      });
+      
+      // Soil type change handler
+      document.getElementById('soilType').addEventListener('change', function() {
+        const soilType = this.value;
+        alert(`Soil type updated to ${soilType}. Crop suggestions will be recalculated.`);
+      });
+      
+      // Function to load farming alerts based on journal entries
+      function loadFarmingAlerts() {
+        const alertsLoader = document.getElementById('alertsLoader');
+        const alertsContainer = document.getElementById('alertsContainer');
+        const alertsInfoText = document.getElementById('alertsInfoText');
+        const alertsError = document.getElementById('alertsError');
+        
+        // Show loader
+        if (alertsLoader) alertsLoader.style.display = 'block';
+        if (alertsError) alertsError.style.display = 'none';
+        
+        console.log('� Loading smart farming alerts...');
+        
+        fetch('/api/farming_alerts')
+          .then(response => response.json())
+          .then(data => {
+            if (alertsLoader) alertsLoader.style.display = 'none';
+            
+            if (data.success && data.alerts) {
+              // Generate alert HTML with enhanced styling for smart alerts
+              const alertsHTML = data.alerts.map(alert => {
+                // Determine alert styling based on type
+                let alertClass = 'background:#cce5ff;border-left:4px solid #007bff'; // default info
+                if (alert.type === 'warning') {
+                  alertClass = 'background:#fff3cd;border-left:4px solid var(--warning)';
+                } else if (alert.type === 'success') {
+                  alertClass = 'background:#d4edda;border-left:4px solid var(--success)';
+                } else if (alert.type === 'error') {
+                  alertClass = 'background:#f8d7da;border-left:4px solid var(--danger)';
+                }
+                
+                // Priority indicator with Enhanced AI badge
+                let priorityIndicator = '<span style="background:#0d6efd;color:white;padding:2px 6px;border-radius:10px;font-size:10px;margin-left:5px;">GEMINI AI</span>';
+                if (alert.priority === 'high') {
+                  priorityIndicator += '<span style="background:var(--danger);color:white;padding:2px 6px;border-radius:10px;font-size:10px;margin-left:3px;">HIGH</span>';
+                } else if (alert.priority === 'medium') {
+                  priorityIndicator += '<span style="background:var(--warning);color:white;padding:2px 6px;border-radius:10px;font-size:10px;margin-left:3px;">MED</span>';
+                }
+                
+                return `
+                  <div style="padding:12px;${alertClass};border-radius:8px;margin:10px 0;box-shadow:0 2px 4px rgba(0,0,0,0.1);">
+                    <strong>${alert.icon} ${alert.title}:</strong> ${alert.message}${priorityIndicator}
+                    <div style="margin-top:8px;padding:6px;background:rgba(255,255,255,0.3);border-radius:4px;font-size:11px;color:#555;">
+                      🧠 <em>Intelligent recommendation based on your farming patterns and best practices</em>
+                    </div>
+                  </div>
+                `;
+              }).join('');
+              
+              if (alertsContainer) {
+                alertsContainer.innerHTML = alertsHTML;
+              }
+              
+              // Update info text with AI analysis details
+              if (alertsInfoText) {
+                const smartGenerated = data.alerts.length;
+                const totalEntries = data.total_entries_analyzed || 0;
+                const sources = data.sources ? data.sources.join(', ') : 'AI Systems';
+                alertsInfoText.innerHTML = `Generated <strong>${smartGenerated} intelligent alerts</strong> from ${totalEntries} journal entries. 
+                                          Powered by <strong>${sources}</strong>. Last updated: ${new Date().toLocaleTimeString()}`;
+              }
+              
+              console.log(`✅ Loaded ${data.alerts.length} smart farming alerts successfully`);
+            } else {
+              console.error('Failed to load smart farming alerts:', data.error);
+              if (alertsError) alertsError.style.display = 'block';
+              
+              // Show fallback alerts
+              loadFallbackAlerts();
+            }
+          })
+          .catch(error => {
+            console.error('Error fetching smart farming alerts:', error);
+            if (alertsLoader) alertsLoader.style.display = 'none';
+            if (alertsError) alertsError.style.display = 'block';
+            
+            // Show fallback alerts
+            loadFallbackAlerts();
+          });
+      }
+      
+      // Function to load fallback alerts
+      function loadFallbackAlerts() {
+        const alertsContainer = document.getElementById('alertsContainer');
+        const alertsInfoText = document.getElementById('alertsInfoText');
+        
+        const fallbackHTML = `
+          <div style="padding:10px;background:#fff3cd;border-radius:8px;margin:10px 0;border-left:4px solid var(--warning)">
+            <strong>⚠️ General Reminder:</strong> Monitor your crops regularly for pests and diseases.
+            <span style="background:#999;color:white;padding:2px 6px;border-radius:10px;font-size:10px;margin-left:8px;">BASIC</span>
+          </div>
+          <div style="padding:10px;background:#d4edda;border-radius:8px;margin:10px 0;border-left:4px solid var(--success)">
+            <strong>✅ Seasonal Tip:</strong> September is ideal for preparing fields for Rabi season crops.
+            <span style="background:#999;color:white;padding:2px 6px;border-radius:10px;font-size:10px;margin-left:8px;">BASIC</span>
+          </div>
+          <div style="padding:10px;background:#cce5ff;border-radius:8px;margin:10px 0;border-left:4px solid #007bff">
+            <strong>ℹ️ Info:</strong> Keep recording your farming activities in the journal for better smart recommendations.
+            <span style="background:#999;color:white;padding:2px 6px;border-radius:10px;font-size:10px;margin-left:8px;">BASIC</span>
+          </div>
+        `;
+        
+        if (alertsContainer) {
+          alertsContainer.innerHTML = fallbackHTML;
+        }
+        
+        if (alertsInfoText) {
+          alertsInfoText.textContent = "Alert system temporarily unavailable. Showing basic alerts. Add more journal entries for better smart recommendations when service resumes.";
+        }
+      }
+
+      // PDF Download functionality for crop recommendations
+      document.getElementById('downloadCropRecommendationsPdf').addEventListener('click', function() {
+        const button = this;
+        const originalText = button.textContent;
+        
+        // Show loading state
+        button.textContent = 'Generating PDF...';
+        button.disabled = true;
+        
+        // Create download URL with current location parameters
+        const lat = currentLocation.lat || '16.5449';
+        const lon = currentLocation.lon || '81.5212';
+        const location = currentLocation.name || 'Unknown';
+        
+        const url = `/api/crop_recommendations_pdf?lat=${lat}&lon=${lon}&location=${encodeURIComponent(location)}`;
+        
+        // Create download link
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `crop_recommendations_${location}_${new Date().toISOString().split('T')[0]}.pdf`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        
+        // Reset button after a short delay
+        setTimeout(() => {
+          button.textContent = originalText;
+          button.disabled = false;
+          alert('Crop recommendations PDF download started! Check your downloads folder.');
+        }, 1500);
+      });
+    });
+  </script>
+</body>
+</html>

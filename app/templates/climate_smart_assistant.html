@@ -1,0 +1,327 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Climate-smart Crop Planning Assistant</title>
+  <style>
+    body { font-family: Inter, system-ui, Arial; margin: 0; background: #f4f7f6; color: #0b1320; }
+    header { background: linear-gradient(90deg,#ffffffcc, #eaf6f0); padding: 18px 22px; display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+    .brand { display: flex; align-items: center; gap: 12px; }
+    .logo { width: 46px; height: 46px; border-radius: 10px; background: #2f8f6a; display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; }
+    .container { max-width: 900px; margin: 32px auto; background: white; border-radius: 14px; box-shadow: 0 6px 18px rgba(11,19,32,0.06); padding: 32px; }
+    h1 { font-size: 2em; color: #2f8f6a; margin-bottom: 8px; }
+    h2 { color: #1a5c3c; margin-top: 32px; }
+    .desc { color: #444; font-size: 1.1em; margin-bottom: 18px; }
+    .feature-list { margin: 18px 0 28px 0; padding-left: 20px; }
+    .feature-list li { margin-bottom: 8px; }
+    .outcome { background: #eaf6f0; border-left: 4px solid #2f8f6a; padding: 16px; border-radius: 8px; margin-bottom: 24px; }
+    .crop-table { width: 100%; border-collapse: collapse; margin: 24px 0; }
+    .crop-table th, .crop-table td { padding: 10px; border-bottom: 1px solid #e2e8f0; text-align: left; }
+    .crop-table th { background: #2f8f6a; color: white; }
+    .risk-low { color: #27ae60; font-weight: bold; }
+    .risk-med { color: #e67e22; font-weight: bold; }
+    .risk-high { color: #e74c3c; font-weight: bold; }
+    .calendar { background: #f8fafb; border-radius: 8px; padding: 18px; margin-bottom: 18px; }
+    .btn { background: #2f8f6a; color: white; padding: 10px 18px; border-radius: 8px; border: 0; cursor: pointer; font-size: 1em; margin-top: 18px; }
+    .back-link { color: #2f8f6a; text-decoration: none; font-size: 1em; margin-bottom: 18px; display: inline-block; }
+    @media (max-width: 700px) { .container { padding: 12px; } }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="brand">
+      <div class="logo">FM</div>
+      <div>
+        <div style="font-weight:700">Climate-smart Crop Planning Assistant</div>
+        <div class="muted">Optimize profit, risk, and resilience</div>
+      </div>
+    </div>
+    <a href="/dashboard" class="back-link">← Back to Dashboard</a>
+  </header>
+  <div class="container">
+    <h1>Climate-smart Crop Planning Assistant</h1>
+    <div style="margin-bottom:28px;">
+      <div class="calendar" style="margin-bottom:18px;">
+        <h3 style="margin:0 0 10px 0;color:#2f8f6a;">Crop Calendar</h3>
+        <div id="calendarContainer"></div>
+      </div>
+      <div style="display:flex;gap:24px;flex-wrap:wrap;">
+        <div style="flex:1;min-width:220px;">
+          <h3 style="color:#1a5c3c;margin-bottom:8px;">Risk Bands</h3>
+          <div id="riskBands">
+            <div style="color:#888">Loading risk bands...</div>
+          </div>
+        </div>
+        <div style="flex:1;min-width:220px;">
+          <h3 style="color:#1a5c3c;margin-bottom:8px;">Regional Customization</h3>
+          <form id="regionForm">
+            <label for="regionSelect">Select Region:</label>
+            <select id="regionSelect" style="margin-bottom:10px;width:100%">
+              <option value="Andhra Pradesh">Andhra Pradesh</option>
+              <option value="Punjab">Punjab</option>
+              <option value="Maharashtra">Maharashtra</option>
+              <option value="Tamil Nadu">Tamil Nadu</option>
+              <option value="West Bengal">West Bengal</option>
+              <option value="Other">Other</option>
+            </select>
+            <button type="submit" class="btn" style="width:100%">Update Recommendations</button>
+          </form>
+        </div>
+      </div>
+    </div>
+    <div style="margin:32px 0 24px 0">
+      <h3 style="color:#2f8f6a;margin-bottom:10px;">Chat with the Assistant</h3>
+      <div id="chatBox" style="background:#f8fafb;border-radius:8px;padding:18px;min-height:120px;max-height:260px;overflow:auto;margin-bottom:12px;"></div>
+      <form id="chatForm" style="display:flex;gap:8px;">
+        <input id="chatInput" placeholder="Ask about crop planning, risk, or calendars..." style="flex:1;padding:10px;border-radius:8px;border:1px solid #e2e8f0;" />
+        <button class="btn" type="submit">Send</button>
+      </form>
+    </div>
+  </div>
+  <script>
+
+
+    // Chatbot logic (real backend)
+    const chatBox = document.getElementById('chatBox');
+    const chatForm = document.getElementById('chatForm');
+    const chatInput = document.getElementById('chatInput');
+    let region = document.getElementById('regionSelect').value;
+    let weather = "Weather: 32°C, 80% humidity, 200mm rainfall";
+    let crops = "Rice, Cotton, Pulses, Wheat, Maize";
+
+  // Store the latest risk bands and crop calendar data for chatbot context
+  let latestRiskBands = null;
+  let latestCropCalendar = null;
+
+
+    // Helper: Render a real calendar for the current month, highlighting activity dates
+    function renderRealCalendar(activitiesByDay) {
+      const today = new Date();
+      const year = today.getFullYear();
+      const month = today.getMonth(); // 0-indexed
+      const daysInMonth = new Date(year, month + 1, 0).getDate();
+      const firstDay = new Date(year, month, 1).getDay();
+      const dayNames = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+      let html = `<table style='width:100%;text-align:center;font-size:14px;margin-bottom:12px'><thead><tr>`;
+      for (let d of dayNames) html += `<th>${d}</th>`;
+      html += '</tr></thead><tbody><tr>';
+      let dayOfWeek = 0;
+      for (let i = 0; i < firstDay; i++) { html += '<td></td>'; dayOfWeek++; }
+      for (let date = 1; date <= daysInMonth; date++) {
+        let cell = `<td style='padding:6px;`;
+        if (activitiesByDay[date]) {
+          cell += `background:#2f8f6a;color:white;border-radius:50%;font-weight:bold;cursor:pointer;' title='`;
+          cell += activitiesByDay[date].map(a => `${a.crop}: ${a.activity}`).join(' | ');
+        } else {
+          cell += `'`;
+        }
+        cell += `'>${date}</td>`;
+        html += cell;
+        dayOfWeek++;
+        if (dayOfWeek % 7 === 0) { html += '</tr><tr>'; }
+      }
+      html += '</tr></tbody></table>';
+      return html;
+    }
+
+    // Dynamic AI-powered crop calendar
+    async function fetchAndRenderCalendar() {
+      const container = document.getElementById('calendarContainer');
+      if (!container) return;
+      container.innerHTML = '<div style="color:#888">Loading crop calendar...</div>';
+      try {
+        const res = await fetch('/api/crop_calendar', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ region, weather, crops })
+        });
+        const data = await res.json();
+        if (data.success && Array.isArray(data.calendar)) {
+          latestCropCalendar = data.calendar; // Save for chatbot context
+          // Build a map of day -> [{crop, activity}]
+          const activitiesByDay = {};
+          for (const cropObj of data.calendar) {
+            for (const act of cropObj.calendar) {
+              const window = act.window;
+              // Extract all individual dates (1 or 2 digit numbers)
+              const matches = window.match(/\b(\d{1,2})\b/g);
+              if (matches) {
+                for (const m of matches) {
+                  const d = parseInt(m);
+                  if (!isNaN(d)) {
+                    if (!activitiesByDay[d]) activitiesByDay[d] = [];
+                    activitiesByDay[d].push({ crop: cropObj.crop, activity: act.activity });
+                  }
+                }
+              }
+            }
+          }
+          let html = renderRealCalendar(activitiesByDay);
+          // Also show the tabular calendar below
+          for (const cropObj of data.calendar) {
+            html += `<div style='margin-bottom:18px;'>`;
+            html += `<div style='font-weight:bold;font-size:1.1em;color:#2f8f6a;margin-bottom:4px;'>${cropObj.crop}</div>`;
+            html += `<table style='width:100%;border-collapse:collapse;font-size:14px;margin-bottom:6px;'>`;
+            html += `<tr style='background:#eaf6f0;'><th style='padding:6px 8px;text-align:left;'>Activity</th><th style='padding:6px 8px;text-align:left;'>Time Window</th><th style='padding:6px 8px;text-align:left;'>Tips</th></tr>`;
+            for (const act of cropObj.calendar) {
+              html += `<tr>`;
+              html += `<td style='padding:6px 8px;'>${act.activity}</td>`;
+              html += `<td style='padding:6px 8px;'>${act.window}</td>`;
+              html += `<td style='padding:6px 8px;'>${(act.tips||[]).join('<br>')}</td>`;
+              html += `</tr>`;
+            }
+            html += `</table></div>`;
+          }
+          if (!html) html = '<div style="color:#888">No calendar data available.</div>';
+          container.innerHTML = html;
+        } else {
+          latestCropCalendar = null;
+          container.innerHTML = '<div style="color:#888">Crop calendar unavailable.</div>';
+        }
+      } catch (e) {
+        latestCropCalendar = null;
+        container.innerHTML = '<div style="color:#888">Crop calendar unavailable.</div>';
+      }
+    }
+    // Initial fetch
+    fetchAndRenderCalendar();
+
+    // Fetch and render risk bands dynamically
+    async function fetchRiskBands() {
+  const riskBandsDiv = document.getElementById('riskBands');
+  riskBandsDiv.innerHTML = '<div style="color:#888">Loading risk bands...</div>';
+      try {
+        // Request prices along with risk bands
+        const res = await fetch('/api/crop_risk_bands', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ region, weather, crops, include_prices: true })
+        });
+        const data = await res.json();
+        if (data.success) {
+          latestRiskBands = data.risk_bands; // Save for chatbot context
+          let html = '';
+          // Helper to render crop with price
+          function cropWithPrice(crop, prices) {
+            if (prices && prices[crop]) {
+              return `${crop} <span style='color:#888;font-size:0.95em;'>(₹${prices[crop]})</span>`;
+            } else {
+              return crop;
+            }
+          }
+          const prices = data.prices || {};
+          if (data.risk_bands.low && data.risk_bands.low.length)
+            html += `<div style='margin-bottom:8px;'><span class='risk-low'>●</span> Low Risk: ${data.risk_bands.low.map(crop => cropWithPrice(crop, prices)).join(', ')}</div>`;
+          if (data.risk_bands.medium && data.risk_bands.medium.length)
+            html += `<div style='margin-bottom:8px;'><span class='risk-med'>●</span> Medium Risk: ${data.risk_bands.medium.map(crop => cropWithPrice(crop, prices)).join(', ')}</div>`;
+          if (data.risk_bands.high && data.risk_bands.high.length)
+            html += `<div><span class='risk-high'>●</span> High Risk: ${data.risk_bands.high.map(crop => cropWithPrice(crop, prices)).join(', ')}</div>`;
+          if (!html) html = '<div style="color:#888">No risk data available.</div>';
+          html += `<div style='font-size:12px;color:#888;margin-top:6px;'>All prices are per quintal (100kg), unless otherwise specified.</div>`;
+          riskBandsDiv.innerHTML = html;
+        } else {
+          latestRiskBands = null;
+          riskBandsDiv.innerHTML = '<div style="color:#888">Risk bands unavailable.</div>';
+        }
+      } catch (e) {
+        latestRiskBands = null;
+        riskBandsDiv.innerHTML = '<div style="color:#888">Risk bands unavailable.</div>';
+      }
+    }
+    // Initial fetch
+    fetchRiskBands();
+    function addChatMessage(msg, sender) {
+      const div = document.createElement('div');
+      div.style.marginBottom = '8px';
+      div.innerHTML = `<b style='color:${sender==="user"?"#2f8f6a":"#1a5c3c"}'>${sender==="user"?"You":"Assistant"}:</b> ${msg}`;
+      chatBox.appendChild(div);
+      chatBox.scrollTop = chatBox.scrollHeight;
+    }
+    chatForm.addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const msg = chatInput.value.trim();
+      if (!msg) return;
+      addChatMessage(msg, 'user');
+      chatInput.value = '';
+      // Show typing...
+      const typingDiv = document.createElement('div');
+      typingDiv.className = 'assistant-typing';
+      typingDiv.innerHTML = `<b style='color:#1a5c3c'>Assistant:</b> <span style='color:#888'>Typing...</span>`;
+      chatBox.appendChild(typingDiv);
+      chatBox.scrollTop = chatBox.scrollHeight;
+      try {
+        const res = await fetch('/api/climate_smart_chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            message: msg,
+            weather,
+            crops,
+            region,
+            risk_bands: latestRiskBands,
+            crop_calendar: latestCropCalendar
+          })
+        });
+        const data = await res.json();
+        typingDiv.remove();
+        if (data.success) {
+          addChatMessage(data.reply, 'assistant');
+        } else {
+          addChatMessage('Sorry, the assistant is currently unavailable.', 'assistant');
+        }
+      } catch (err) {
+        typingDiv.remove();
+        addChatMessage('Sorry, the assistant is currently unavailable.', 'assistant');
+      }
+    });
+
+    // Region form handler
+    document.getElementById('regionForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      region = document.getElementById('regionSelect').value;
+      addChatMessage(`Region updated to <b>${region}</b>. Recommendations will be adjusted.`, 'assistant');
+      // Language system message for assistant
+      let langMsg = '';
+      switch(region) {
+        case 'Andhra Pradesh':
+          langMsg = 'From now, please respond in Telugu, the local language of Andhra Pradesh.';
+          break;
+        case 'Punjab':
+          langMsg = 'From now, please respond in Punjabi, the local language of Punjab.';
+          break;
+        case 'Maharashtra':
+          langMsg = 'From now, please respond in Marathi, the local language of Maharashtra.';
+          break;
+        case 'Tamil Nadu':
+          langMsg = 'From now, please respond in Tamil, the local language of Tamil Nadu.';
+          break;
+        case 'West Bengal':
+          langMsg = 'From now, please respond in Bengali, the local language of West Bengal.';
+          break;
+        case 'Other':
+        default:
+          langMsg = 'Continue responding in English.';
+          break;
+      }
+      // Send language system message to assistant backend
+      fetch('/api/climate_smart_chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          message: langMsg,
+          weather,
+          crops,
+          region,
+          risk_bands: latestRiskBands,
+          crop_calendar: latestCropCalendar,
+          system: true
+        })
+      });
+      addChatMessage(langMsg, 'assistant');
+      fetchRiskBands();
+      fetchAndRenderCalendar();
+    });
+  </script>
+</body>
+</html>

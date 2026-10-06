@@ -1,0 +1,1417 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Product Approval</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(to bottom right, #f0fdf4, #eff6ff);
+            min-height: 100vh;
+            padding: 1rem;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            border-radius: 1rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 0.5rem;
+            border-bottom: 2px solid #e5e7eb;
+            margin-top: 1rem;
+        }
+
+        .tab {
+            padding: 0.75rem 1.5rem;
+            background: none;
+            border: none;
+            font-weight: 600;
+            color: #6b7280;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            margin-bottom: -2px;
+            transition: all 0.3s;
+        }
+
+        .tab:hover {
+            color: #374151;
+        }
+
+        .tab.active {
+            color: #15803d;
+            border-bottom-color: #15803d;
+        }
+
+        .tab-content {
+            display: none;
+            margin-top: 1.5rem;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .header-title h1 {
+            font-size: 2rem;
+            color: #166534;
+            margin-bottom: 0.25rem;
+        }
+
+        .header-title p {
+            color: #6b7280;
+        }
+
+        .admin-info {
+            text-align: right;
+        }
+
+        .admin-name {
+            color: #15803d;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .date {
+            color: #9ca3af;
+            font-size: 0.875rem;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 0.75rem;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            padding: 1.5rem;
+            text-align: center;
+        }
+
+        .stat-icon {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #1f2937;
+            margin-bottom: 0.25rem;
+        }
+
+        .stat-label {
+            color: #6b7280;
+            font-size: 0.875rem;
+        }
+
+        .filters {
+            background: white;
+            border-radius: 0.75rem;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .filter-btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 0.5rem;
+            background: #f3f4f6;
+            color: #374151;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .filter-btn:hover {
+            background: #e5e7eb;
+        }
+
+        .filter-btn.active {
+            background: #16a34a;
+            color: white;
+        }
+
+        .products-table {
+            background: white;
+            border-radius: 0.75rem;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead {
+            background: #f9fafb;
+            border-bottom: 2px solid #e5e7eb;
+        }
+
+        th {
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+            color: #374151;
+            font-size: 0.875rem;
+            text-transform: uppercase;
+        }
+
+        td {
+            padding: 1rem;
+            border-bottom: 1px solid #e5e7eb;
+            color: #1f2937;
+        }
+
+        tr:hover {
+            background: #f9fafb;
+        }
+
+        .product-name {
+            font-weight: 600;
+            color: #1f2937;
+        }
+
+        .seller-info {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 1rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .status-pending {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .status-active {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .status-approved {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .status-rejected {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .status-not_requested {
+            background: #f3f4f6;
+            color: #6b7280;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.875rem;
+        }
+
+        .btn-approve {
+            background: #16a34a;
+            color: white;
+        }
+
+        .btn-approve:hover {
+            background: #15803d;
+        }
+
+        .btn-reject {
+            background: #dc2626;
+            color: white;
+        }
+
+        .btn-reject:hover {
+            background: #b91c1c;
+        }
+
+        .btn-view {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .btn-view:hover {
+            background: #2563eb;
+        }
+
+        .btn-secondary {
+            background: #e5e7eb;
+            color: #374151;
+        }
+
+        .btn-secondary:hover {
+            background: #d1d5db;
+        }
+
+        .empty-state {
+            padding: 3rem;
+            text-align: center;
+            color: #6b7280;
+        }
+
+        .empty-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 1rem;
+            padding: 2rem;
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #1f2937;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #6b7280;
+        }
+
+        .close-btn:hover {
+            color: #1f2937;
+        }
+
+        .detail-grid {
+            display: grid;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .detail-item {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+
+        .detail-label {
+            font-size: 0.875rem;
+            color: #6b7280;
+            font-weight: 600;
+        }
+
+        .detail-value {
+            color: #1f2937;
+            font-size: 1rem;
+        }
+
+        .price-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #15803d;
+        }
+
+        @media (max-width: 768px) {
+            .products-table {
+                overflow-x: auto;
+            }
+
+            table {
+                min-width: 800px;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div class="header-top">
+                <div class="header-title">
+                    <h1>🛡️ Admin Dashboard</h1>
+                    <p>Manage product approvals and seller verifications</p>
+                </div>
+                <div class="admin-info">
+                    <div class="admin-name">Admin: {{ admin_name if admin_name else 'Admin' }}</div>
+                    <div class="date" id="currentDate"></div>
+                </div>
+            </div>
+            
+            <!-- Tabs -->
+            <div class="tabs">
+                <button class="tab active" onclick="switchTab('products')">📦 Product Approvals</button>
+                <button class="tab" onclick="switchTab('verifications')">🌾 Seller Verifications</button>
+                <button class="tab" onclick="switchTab('payments')">💳 Payment Verification</button>
+            </div>
+        </div>
+
+        <!-- Product Approvals Tab -->
+        <div class="tab-content active" id="productsTab">
+            <!-- Stats Grid -->
+            <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon">⏳</div>
+                <div class="stat-value" id="pendingCount">0</div>
+                <div class="stat-label">Pending Requests</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">✅</div>
+                <div class="stat-value" id="approvedCount">0</div>
+                <div class="stat-label">Approved Today</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">❌</div>
+                <div class="stat-value" id="rejectedCount">0</div>
+                <div class="stat-label">Rejected Today</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">📦</div>
+                <div class="stat-value" id="totalCount">0</div>
+                <div class="stat-label">Total Products</div>
+            </div>
+        </div>
+
+        <!-- Filters -->
+        <div class="filters">
+            <span style="color: #6b7280; font-weight: 600;">Filter by:</span>
+            <button class="filter-btn active" onclick="filterProducts('all')">All</button>
+            <button class="filter-btn" onclick="filterProducts('pending')">Pending</button>
+            <button class="filter-btn" onclick="filterProducts('active')">Approved</button>
+            <button class="filter-btn" onclick="filterProducts('rejected')">Rejected</button>
+        </div>
+
+        <!-- Products Table -->
+        <div class="products-table">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Product Name</th>
+                        <th>Category</th>
+                        <th>Seller</th>
+                        <th>Price</th>
+                        <th>Quantity</th>
+                        <th>Date Posted</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="productsTableBody">
+                    <!-- Products will be loaded here -->
+                </tbody>
+            </table>
+        </div>
+        </div>
+
+        <!-- Seller Verifications Tab -->
+        <div class="tab-content" id="verificationsTab">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon">⏳</div>
+                    <div class="stat-value" id="verPendingCount">0</div>
+                    <div class="stat-label">Pending Verifications</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">✅</div>
+                    <div class="stat-value" id="verApprovedCount">0</div>
+                    <div class="stat-label">Verified Sellers</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">❌</div>
+                    <div class="stat-value" id="verRejectedCount">0</div>
+                    <div class="stat-label">Rejected</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">👥</div>
+                    <div class="stat-value" id="verTotalCount">0</div>
+                    <div class="stat-label">Total Requests</div>
+                </div>
+            </div>
+
+            <!-- Filters -->
+            <div class="filters">
+                <span style="color: #6b7280; font-weight: 600;">Filter by:</span>
+                <button class="filter-btn active" onclick="filterVerifications('all')">All</button>
+                <button class="filter-btn" onclick="filterVerifications('pending')">Pending</button>
+                <button class="filter-btn" onclick="filterVerifications('approved')">Approved</button>
+                <button class="filter-btn" onclick="filterVerifications('rejected')">Rejected</button>
+            </div>
+
+            <!-- Verifications Table -->
+            <div class="products-table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Farmer</th>
+                            <th>Farm Name</th>
+                            <th>Location</th>
+                            <th>Farm Size</th>
+                            <th>Experience</th>
+                            <th>Phone</th>
+                            <th>Crops</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="verificationsTableBody">
+                        <tr>
+                            <td colspan="9" class="empty-state">
+                                <div class="empty-icon">📋</div>
+                                <p>Loading verification requests...</p>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Payment Verification Tab -->
+    <div class="tab-content" id="paymentsTab">
+        <!-- Stats Grid -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon">⏳</div>
+                <div class="stat-value" id="paymentPendingCount">0</div>
+                <div class="stat-label">Pending Payments</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">✅</div>
+                <div class="stat-value" id="paymentVerifiedCount">0</div>
+                <div class="stat-label">Verified Today</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">❌</div>
+                <div class="stat-value" id="paymentRejectedCount">0</div>
+                <div class="stat-label">Rejected Today</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">💰</div>
+                <div class="stat-value" id="paymentTotalAmount">₹0</div>
+                <div class="stat-label">Total Pending Amount</div>
+            </div>
+        </div>
+
+        <!-- Filter Buttons -->
+        <div class="filter-buttons">
+            <button class="filter-btn active" onclick="filterPayments('all')">All Payments</button>
+            <button class="filter-btn" onclick="filterPayments('pending')">Pending</button>
+            <button class="filter-btn" onclick="filterPayments('verified')">Verified</button>
+            <button class="filter-btn" onclick="filterPayments('rejected')">Rejected</button>
+        </div>
+
+        <!-- Payments Table -->
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Order ID</th>
+                        <th>Customer</th>
+                        <th>Phone</th>
+                        <th>Amount</th>
+                        <th>Items</th>
+                        <th>Date</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="paymentsTableBody">
+                    <!-- Payments will be loaded here -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Payment Detail Modal -->
+    <div class="modal" id="paymentModal">
+        <div class="modal-content" style="max-width: 800px;">
+            <div class="modal-header">
+                <h2 class="modal-title" id="payModalTitle">Payment Details</h2>
+                <button class="close-btn" onclick="closePaymentModal()">×</button>
+            </div>
+            <div class="detail-grid" id="paymentDetails">
+                <!-- Details will be populated here -->
+            </div>
+            <div class="action-buttons" id="payModalActions">
+                <!-- Action buttons will be populated here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Verification Detail Modal -->
+    <div class="modal" id="verificationModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title" id="verModalTitle">Farmer Verification Details</h2>
+                <button class="close-btn" onclick="closeVerificationModal()">×</button>
+            </div>
+            <div class="detail-grid" id="verificationDetails">
+                <!-- Details will be populated here -->
+            </div>
+            <div class="action-buttons" id="verModalActions">
+                <!-- Action buttons will be populated here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Product Detail Modal -->
+    <div class="modal" id="productModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Product Details</h3>
+                <button class="close-btn" onclick="closeModal()">×</button>
+            </div>
+            <div class="detail-grid" id="productDetails">
+                <!-- Details will be loaded here -->
+            </div>
+            <div class="action-buttons" id="modalActions">
+                <!-- Action buttons will be loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let products = [];
+        let verifications = [];
+        let payments = [];
+        let currentFilter = 'all';
+        let currentVerFilter = 'all';
+        let currentPayFilter = 'all';
+
+        // Initialize
+        document.getElementById('currentDate').textContent = new Date().toLocaleDateString();
+        loadProducts();
+        loadVerifications();
+        loadPayments();
+
+        async function loadProducts() {
+            try {
+                const response = await fetch('/api/admin/products');
+                if (response.ok) {
+                    products = await response.json();
+                    updateStats();
+                    renderProducts();
+                } else {
+                    console.error('Failed to load products');
+                }
+            } catch (error) {
+                console.error('Error loading products:', error);
+            }
+        }
+
+        function updateStats() {
+            const today = new Date().toLocaleDateString();
+            
+            const pending = products.filter(p => p.status === 'pending').length;
+            const approved = products.filter(p => p.status === 'active' && p.datePosted === today).length;
+            const rejected = products.filter(p => p.status === 'rejected' && p.datePosted === today).length;
+            
+            document.getElementById('pendingCount').textContent = pending;
+            document.getElementById('approvedCount').textContent = approved;
+            document.getElementById('rejectedCount').textContent = rejected;
+            document.getElementById('totalCount').textContent = products.length;
+        }
+
+        function filterProducts(status) {
+            currentFilter = status;
+            
+            // Update active filter button
+            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            renderProducts();
+        }
+
+        function renderProducts() {
+            const tbody = document.getElementById('productsTableBody');
+            
+            const filtered = currentFilter === 'all' 
+                ? products 
+                : products.filter(p => p.status === currentFilter);
+
+            if (filtered.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="8">
+                            <div class="empty-state">
+                                <div class="empty-icon">📦</div>
+                                <p style="font-size: 1.125rem;">No products found</p>
+                                <p style="font-size: 0.875rem; margin-top: 0.5rem;">No ${currentFilter === 'all' ? '' : currentFilter} products to display</p>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            tbody.innerHTML = filtered.map(product => {
+                const statusClass = `status-${product.status}`;
+                const statusText = product.status.charAt(0).toUpperCase() + product.status.slice(1);
+                
+                return `
+                    <tr>
+                        <td class="product-name">${product.name}</td>
+                        <td>${product.category}</td>
+                        <td>
+                            <div class="seller-info">
+                                <span>👤</span>
+                                <span>${product.seller}</span>
+                            </div>
+                        </td>
+                        <td style="font-weight: 600;">₹${product.price}/${product.unit}</td>
+                        <td>${product.quantity} ${product.unit}</td>
+                        <td>${product.datePosted}</td>
+                        <td><span class="status-badge ${statusClass}">${statusText}</span></td>
+                        <td>
+                            <div class="action-buttons">
+                                <button class="btn btn-view" onclick="viewProduct(${product.id})">View</button>
+                                ${product.status === 'pending' ? `
+                                    <button class="btn btn-approve" onclick="approveProduct(${product.id})">Approve</button>
+                                    <button class="btn btn-reject" onclick="rejectProduct(${product.id})">Reject</button>
+                                ` : ''}
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function viewProduct(id) {
+            const product = products.find(p => p.id === id);
+            if (!product) return;
+
+            const statusClass = `status-${product.status}`;
+            const statusText = product.status.charAt(0).toUpperCase() + product.status.slice(1);
+
+            document.getElementById('productDetails').innerHTML = `
+                <div class="detail-item">
+                    <span class="detail-label">Product Name</span>
+                    <span class="detail-value">${product.name}</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Category</span>
+                    <span class="detail-value">${product.category}</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Seller</span>
+                    <span class="detail-value">👤 ${product.seller}</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Price</span>
+                    <span class="price-value">₹${product.price} / ${product.unit}</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Quantity Available</span>
+                    <span class="detail-value">${product.quantity} ${product.unit}</span>
+                </div>
+                ${product.description ? `
+                    <div class="detail-item">
+                        <span class="detail-label">Description</span>
+                        <span class="detail-value">${product.description}</span>
+                    </div>
+                ` : ''}
+                ${product.location ? `
+                    <div class="detail-item">
+                        <span class="detail-label">Location</span>
+                        <span class="detail-value">📍 ${product.location}</span>
+                    </div>
+                ` : ''}
+                ${product.contact ? `
+                    <div class="detail-item">
+                        <span class="detail-label">Contact</span>
+                        <span class="detail-value">📞 ${product.contact}</span>
+                    </div>
+                ` : ''}
+                <div class="detail-item">
+                    <span class="detail-label">Date Posted</span>
+                    <span class="detail-value">${product.datePosted}</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Status</span>
+                    <span><span class="status-badge ${statusClass}">${statusText}</span></span>
+                </div>
+            `;
+
+            document.getElementById('modalActions').innerHTML = product.status === 'pending' ? `
+                <button class="btn btn-approve" onclick="approveProduct(${product.id}); closeModal();" style="flex: 1;">✅ Approve</button>
+                <button class="btn btn-reject" onclick="rejectProduct(${product.id}); closeModal();" style="flex: 1;">❌ Reject</button>
+                <button class="btn btn-secondary" onclick="closeModal()">Close</button>
+            ` : `
+                <button class="btn btn-secondary" onclick="closeModal()" style="width: 100%;">Close</button>
+            `;
+
+            document.getElementById('productModal').classList.add('active');
+        }
+
+        function closeModal() {
+            document.getElementById('productModal').classList.remove('active');
+        }
+
+        async function approveProduct(id) {
+            if (!confirm('Are you sure you want to approve this product?')) {
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/admin/approve_product', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ id })
+                });
+
+                const result = await response.json();
+                
+                if (response.ok && result.success) {
+                    await loadProducts();
+                    alert('Product approved successfully!');
+                } else {
+                    alert(result.error || 'Failed to approve product. Please try again.');
+                }
+            } catch (error) {
+                console.error('Error approving product:', error);
+                alert('Network error. Please check your connection and try again.');
+            }
+        }
+
+        async function rejectProduct(id) {
+            if (!confirm('Are you sure you want to reject this product?')) {
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/admin/reject_product', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ id })
+                });
+
+                const result = await response.json();
+                
+                if (response.ok && result.success) {
+                    await loadProducts();
+                    alert('Product rejected successfully!');
+                } else {
+                    alert(result.error || 'Failed to reject product. Please try again.');
+                }
+            } catch (error) {
+                console.error('Error rejecting product:', error);
+                alert('Network error. Please check your connection and try again.');
+            }
+        }
+
+        // Close modal when clicking outside
+        document.getElementById('productModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeModal();
+            }
+        });
+
+        // Tab switching
+        function switchTab(tabName) {
+            // Update tab buttons
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            // Update tab content
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            document.getElementById(tabName + 'Tab').classList.add('active');
+        }
+
+        // Verification functions
+        async function loadVerifications() {
+            try {
+                const response = await fetch('/api/admin/verification_requests');
+                if (response.ok) {
+                    verifications = await response.json();
+                    console.log('Loaded verifications:', verifications);
+                    console.log('Pending count:', verifications.filter(v => v.status === 'pending').length);
+                    updateVerificationStats();
+                    renderVerifications();
+                } else {
+                    console.error('Failed to load verifications:', response.status);
+                }
+            } catch (error) {
+                console.error('Error loading verifications:', error);
+            }
+        }
+
+        function updateVerificationStats() {
+            const pending = verifications.filter(v => v.status === 'pending').length;
+            const approved = verifications.filter(v => v.status === 'approved').length;
+            const rejected = verifications.filter(v => v.status === 'rejected').length;
+            
+            document.getElementById('verPendingCount').textContent = pending;
+            document.getElementById('verApprovedCount').textContent = approved;
+            document.getElementById('verRejectedCount').textContent = rejected;
+            document.getElementById('verTotalCount').textContent = verifications.length;
+        }
+
+        function filterVerifications(status) {
+            currentVerFilter = status;
+            
+            // Update active filter button - target only verification tab filters
+            const verTab = document.getElementById('verificationsTab');
+            if (verTab) {
+                verTab.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+            }
+            event.target.classList.add('active');
+            
+            renderVerifications();
+        }
+
+        function renderVerifications() {
+            const tbody = document.getElementById('verificationsTableBody');
+            
+            console.log('Current filter:', currentVerFilter);
+            console.log('All verifications:', verifications);
+            
+            const filtered = currentVerFilter === 'all' 
+                ? verifications
+                : verifications.filter(v => v.status === currentVerFilter);
+
+            console.log('Filtered verifications:', filtered);
+
+            if (filtered.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="9" class="empty-state">
+                            <div class="empty-icon">📋</div>
+                            <p>No verification requests found</p>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            tbody.innerHTML = filtered.map(ver => {
+                const statusClass = `status-${ver.status}`;
+                const statusText = ver.status === 'not_requested' ? 'Not Requested' : 
+                                 ver.status.charAt(0).toUpperCase() + ver.status.slice(1);
+
+                const actionButtons = ver.status === 'pending' ? `
+                    <button class="btn btn-approve" onclick="approveVerification(${ver.id})">Approve</button>
+                    <button class="btn btn-reject" onclick="rejectVerificationPrompt(${ver.id})">Reject</button>
+                ` : ver.status === 'approved' ? `
+                    <button class="btn btn-view" onclick="viewVerification(${ver.id})">View</button>
+                ` : `
+                    <button class="btn btn-view" onclick="viewVerification(${ver.id})">View</button>
+                `;
+
+                return `
+                    <tr>
+                        <td>
+                            <div class="product-name">${ver.username}</div>
+                        </td>
+                        <td>${ver.farm_name || 'N/A'}</td>
+                        <td>${ver.farm_location || 'N/A'}</td>
+                        <td>${ver.farm_size || 'N/A'}</td>
+                        <td>${ver.farming_experience || 'N/A'}</td>
+                        <td>
+                            ${ver.phone_number ? `<a href="tel:${ver.phone_number}" style="color: #15803d; font-weight: 600; text-decoration: none;">📞 ${ver.phone_number}</a>` : 'N/A'}
+                        </td>
+                        <td style="max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                            ${ver.crops_grown || 'N/A'}
+                        </td>
+                        <td><span class="status-badge ${statusClass}">${statusText}</span></td>
+                        <td>
+                            <div class="action-buttons">
+                                ${actionButtons}
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+            
+            console.log('Rendered HTML to tbody');
+        }
+
+        function viewVerification(id) {
+            const ver = verifications.find(v => v.id === id);
+            if (!ver) return;
+
+            const statusClass = `status-${ver.status}`;
+            const statusText = ver.status === 'not_requested' ? 'Not Requested' : 
+                             ver.status.charAt(0).toUpperCase() + ver.status.slice(1);
+
+            document.getElementById('verificationDetails').innerHTML = `
+                <div class="detail-item">
+                    <div class="detail-label">Farmer Username</div>
+                    <div class="detail-value">${ver.username}</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">Farm Name</div>
+                    <div class="detail-value">${ver.farm_name || 'N/A'}</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">Farm Location</div>
+                    <div class="detail-value">${ver.farm_location || 'N/A'}</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">Farm Size</div>
+                    <div class="detail-value">${ver.farm_size || 'N/A'}</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">Farming Experience</div>
+                    <div class="detail-value">${ver.farming_experience || 'N/A'}</div>
+                </div>
+                <div class="detail-item" style="grid-column: 1 / -1;">
+                    <div class="detail-label">Crops Grown</div>
+                    <div class="detail-value">${ver.crops_grown || 'N/A'}</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">Phone Number</div>
+                    <div class="detail-value">${ver.phone_number || 'N/A'}</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">ID Proof Number</div>
+                    <div class="detail-value">${ver.id_proof_number || 'N/A'}</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">Verification Status</div>
+                    <div class="detail-value"><span class="status-badge ${statusClass}">${statusText}</span></div>
+                </div>
+                ${ver.verified_date ? `
+                <div class="detail-item">
+                    <div class="detail-label">Verified Date</div>
+                    <div class="detail-value">${ver.verified_date}</div>
+                </div>
+                ` : ''}
+                ${ver.rejection_reason ? `
+                <div class="detail-item" style="grid-column: 1 / -1;">
+                    <div class="detail-label">Rejection Reason</div>
+                    <div class="detail-value" style="color: #991b1b;">${ver.rejection_reason}</div>
+                </div>
+                ` : ''}
+            `;
+
+            document.getElementById('verModalActions').innerHTML = ver.status === 'pending' ? `
+                <button class="btn btn-approve" onclick="approveVerification(${ver.id})" style="flex: 1;">Approve Verification</button>
+                <button class="btn btn-reject" onclick="rejectVerificationPrompt(${ver.id})" style="flex: 1;">Reject</button>
+                <button class="btn btn-secondary" onclick="closeVerificationModal()">Close</button>
+            ` : `
+                <button class="btn btn-secondary" onclick="closeVerificationModal()" style="width: 100%;">Close</button>
+            `;
+
+            document.getElementById('verificationModal').classList.add('active');
+        }
+
+        function closeVerificationModal() {
+            document.getElementById('verificationModal').classList.remove('active');
+        }
+
+        async function approveVerification(id) {
+            if (!confirm('Are you sure you want to approve this farmer verification?')) {
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/admin/approve_verification', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ verification_id: id })
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    alert(result.message || 'Verification approved successfully!');
+                    closeVerificationModal();
+                    await loadVerifications();
+                } else {
+                    alert(result.error || 'Failed to approve verification');
+                }
+            } catch (error) {
+                console.error('Error approving verification:', error);
+                alert('Failed to approve verification');
+            }
+        }
+
+        function rejectVerificationPrompt(id) {
+            const reason = prompt('Please provide a reason for rejection:');
+            if (reason === null) return; // User cancelled
+            
+            if (!reason.trim()) {
+                alert('Please provide a rejection reason');
+                return;
+            }
+            
+            rejectVerification(id, reason);
+        }
+
+        async function rejectVerification(id, reason) {
+            try {
+                const response = await fetch('/api/admin/reject_verification', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ verification_id: id, reason: reason })
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    alert(result.message || 'Verification rejected');
+                    closeVerificationModal();
+                    await loadVerifications();
+                } else {
+                    alert(result.error || 'Failed to reject verification');
+                }
+            } catch (error) {
+                console.error('Error rejecting verification:', error);
+                alert('Failed to reject verification');
+            }
+        }
+
+        // Close verification modal when clicking outside
+        document.getElementById('verificationModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeVerificationModal();
+            }
+        });
+
+        // Payment Management Functions
+        async function loadPayments() {
+            try {
+                const response = await fetch('/api/admin/payments');
+                
+                if (response.ok) {
+                    payments = await response.json();
+                    updatePaymentStats();
+                    filterPayments(currentPayFilter);
+                } else {
+                    console.error('Failed to load payments');
+                }
+            } catch (error) {
+                console.error('Error loading payments:', error);
+            }
+        }
+
+        function updatePaymentStats() {
+            const today = new Date().toLocaleDateString();
+            
+            const pending = payments.filter(p => p.payment_status === 'pending');
+            const verified = payments.filter(p => p.payment_status === 'verified' && 
+                new Date(p.verified_date).toLocaleDateString() === today);
+            const rejected = payments.filter(p => p.payment_status === 'rejected' && 
+                new Date(p.verified_date).toLocaleDateString() === today);
+            
+            const totalPending = pending.reduce((sum, p) => sum + parseFloat(p.total_amount), 0);
+            
+            document.getElementById('paymentPendingCount').textContent = pending.length;
+            document.getElementById('paymentVerifiedCount').textContent = verified.length;
+            document.getElementById('paymentRejectedCount').textContent = rejected.length;
+            document.getElementById('paymentTotalAmount').textContent = `₹${totalPending.toFixed(2)}`;
+        }
+
+        function filterPayments(status) {
+            currentPayFilter = status;
+            
+            // Update active button
+            document.querySelectorAll('#paymentsTab .filter-btn').forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.textContent.toLowerCase().includes(status) || 
+                    (status === 'all' && btn.textContent === 'All Payments')) {
+                    btn.classList.add('active');
+                }
+            });
+
+            const tbody = document.getElementById('paymentsTableBody');
+            const filtered = status === 'all' ? payments : 
+                            payments.filter(p => p.payment_status === status);
+
+            if (filtered.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="8" style="text-align: center; padding: 2rem; color: #6b7280;">
+                            No ${status === 'all' ? '' : status} payments found
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            tbody.innerHTML = filtered.map(payment => {
+                const statusClass = `status-${payment.payment_status}`;
+                const statusText = payment.payment_status.charAt(0).toUpperCase() + 
+                                 payment.payment_status.slice(1);
+                
+                // Parse order items
+                let itemCount = 0;
+                try {
+                    const items = JSON.parse(payment.order_items);
+                    itemCount = items.length;
+                } catch (e) {
+                    itemCount = 0;
+                }
+                
+                return `
+                    <tr>
+                        <td style="font-family: monospace; font-weight: 600;">${payment.order_id}</td>
+                        <td>${payment.full_name}</td>
+                        <td><a href="tel:${payment.phone_number}" style="color: #2563eb; text-decoration: none;">📞 ${payment.phone_number}</a></td>
+                        <td style="font-weight: 600; color: #15803d;">₹${parseFloat(payment.total_amount).toFixed(2)}</td>
+                        <td>${itemCount} item${itemCount !== 1 ? 's' : ''}</td>
+                        <td>${new Date(payment.payment_date).toLocaleDateString()}</td>
+                        <td><span class="status-badge ${statusClass}">${statusText}</span></td>
+                        <td>
+                            <div class="action-buttons">
+                                <button class="btn btn-view" onclick="viewPayment('${payment.order_id}')">View</button>
+                                ${payment.payment_status === 'pending' ? `
+                                    <button class="btn btn-approve" onclick="verifyPayment('${payment.order_id}')">Verify</button>
+                                    <button class="btn btn-reject" onclick="rejectPaymentPrompt('${payment.order_id}')">Reject</button>
+                                ` : ''}
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function viewPayment(orderId) {
+            const payment = payments.find(p => p.order_id === orderId);
+            if (!payment) return;
+
+            const statusClass = `status-${payment.payment_status}`;
+            const statusText = payment.payment_status.charAt(0).toUpperCase() + 
+                             payment.payment_status.slice(1);
+
+            // Parse order items
+            let itemsHTML = '';
+            try {
+                const items = JSON.parse(payment.order_items);
+                itemsHTML = items.map(item => 
+                    `${item.quantity}x ${item.name} - ₹${(parseFloat(item.price) * item.quantity).toFixed(2)}`
+                ).join('<br>');
+            } catch (e) {
+                itemsHTML = 'Unable to parse items';
+            }
+
+            document.getElementById('paymentDetails').innerHTML = `
+                <div class="detail-item">
+                    <span class="detail-label">Order ID</span>
+                    <span class="detail-value" style="font-family: monospace; font-weight: 600;">${payment.order_id}</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Payment Status</span>
+                    <span class="detail-value"><span class="status-badge ${statusClass}">${statusText}</span></span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Order Date</span>
+                    <span class="detail-value">${new Date(payment.payment_date).toLocaleString()}</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Total Amount</span>
+                    <span class="detail-value" style="color: #15803d; font-weight: 700; font-size: 1.25rem;">₹${parseFloat(payment.total_amount).toFixed(2)}</span>
+                </div>
+                <div class="detail-item" style="grid-column: 1 / -1;">
+                    <span class="detail-label">Order Items</span>
+                    <span class="detail-value">${itemsHTML}</span>
+                </div>
+                <div class="detail-item" style="grid-column: 1 / -1;">
+                    <span class="detail-label">Customer Name</span>
+                    <span class="detail-value">${payment.full_name}</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Phone Number</span>
+                    <span class="detail-value"><a href="tel:${payment.phone_number}" style="color: #2563eb; text-decoration: none;">📞 ${payment.phone_number}</a></span>
+                </div>
+                <div class="detail-item" style="grid-column: 1 / -1;">
+                    <span class="detail-label">Delivery Address</span>
+                    <span class="detail-value">
+                        ${payment.address_line1}<br>
+                        ${payment.address_line2 ? payment.address_line2 + '<br>' : ''}
+                        ${payment.city}, ${payment.state} - ${payment.pincode}
+                    </span>
+                </div>
+                <div class="detail-item" style="grid-column: 1 / -1;">
+                    <span class="detail-label">Payment Screenshot</span>
+                    <div class="detail-value">
+                        <img src="${payment.payment_screenshot}" alt="Payment Proof" 
+                             style="max-width: 100%; max-height: 400px; border: 2px solid #d1d5db; border-radius: 0.5rem; margin-top: 0.5rem; cursor: pointer;"
+                             onclick="window.open(this.src, '_blank')">
+                        <p style="color: #6b7280; font-size: 0.875rem; margin-top: 0.5rem;">Click image to view full size</p>
+                    </div>
+                </div>
+                ${payment.admin_notes ? `
+                <div class="detail-item" style="grid-column: 1 / -1;">
+                    <span class="detail-label">Admin Notes</span>
+                    <span class="detail-value">${payment.admin_notes}</span>
+                </div>
+                ` : ''}
+                ${payment.verified_date ? `
+                <div class="detail-item">
+                    <span class="detail-label">Verification Date</span>
+                    <span class="detail-value">${new Date(payment.verified_date).toLocaleString()}</span>
+                </div>
+                ` : ''}
+            `;
+
+            document.getElementById('payModalActions').innerHTML = payment.payment_status === 'pending' ? `
+                <button class="btn btn-approve" onclick="verifyPayment('${payment.order_id}')">Verify Payment</button>
+                <button class="btn btn-reject" onclick="rejectPaymentPrompt('${payment.order_id}')">Reject Payment</button>
+                <button class="btn btn-secondary" onclick="closePaymentModal()">Close</button>
+            ` : `
+                <button class="btn btn-secondary" onclick="closePaymentModal()" style="width: 100%;">Close</button>
+            `;
+
+            document.getElementById('paymentModal').classList.add('active');
+        }
+
+        function closePaymentModal() {
+            document.getElementById('paymentModal').classList.remove('active');
+        }
+
+        async function verifyPayment(orderId) {
+            if (!confirm('Confirm that the payment screenshot is valid and the payment has been received?')) {
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/admin/verify_payment', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ order_id: orderId })
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    alert(result.message || 'Payment verified successfully!');
+                    closePaymentModal();
+                    await loadPayments();
+                } else {
+                    alert(result.error || 'Failed to verify payment');
+                }
+            } catch (error) {
+                console.error('Error verifying payment:', error);
+                alert('Failed to verify payment');
+            }
+        }
+
+        function rejectPaymentPrompt(orderId) {
+            const reason = prompt('Please provide a reason for rejection (e.g., invalid screenshot, amount mismatch):');
+            if (reason === null) return; // User cancelled
+            
+            if (!reason.trim()) {
+                alert('Please provide a rejection reason');
+                return;
+            }
+            
+            rejectPayment(orderId, reason);
+        }
+
+        async function rejectPayment(orderId, reason) {
+            try {
+                const response = await fetch('/api/admin/reject_payment', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ order_id: orderId, reason: reason })
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    alert(result.message || 'Payment rejected');
+                    closePaymentModal();
+                    await loadPayments();
+                } else {
+                    alert(result.error || 'Failed to reject payment');
+                }
+            } catch (error) {
+                console.error('Error rejecting payment:', error);
+                alert('Failed to reject payment');
+            }
+        }
+
+        // Close payment modal when clicking outside
+        document.getElementById('paymentModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closePaymentModal();
+            }
+        });
+    </script>
+</body>
+</html>

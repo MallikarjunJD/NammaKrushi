@@ -1,0 +1,854 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Farm Task & Inventory Manager</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Poppins:wght@300;400;600;700;800&display=swap');
+    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --primary-green: #2d5a3d;
+      --accent-green: #4caf50;
+      --light-green: #81c784;
+      --dark-green: #1b4d2e;
+      --gold: #ffd700;
+      --cream: #f8f9fa;
+      --glass: rgba(255, 255, 255, 0.1);
+      --glass-border: rgba(255, 255, 255, 0.2);
+      --shadow: rgba(0, 0, 0, 0.1);
+      --text-light: rgba(255, 255, 255, 0.9);
+      --transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    body, html {
+      height: 100%;
+      font-family: 'Inter', sans-serif;
+      overflow-x: hidden;
+      scroll-behavior: smooth;
+    }
+
+    /* Enhanced Animated Background */
+    .landing {
+      position: relative;
+      min-height: 100vh;
+      background: linear-gradient(135deg, 
+        #1a5f3f 0%, 
+        #2d8f5a 25%, 
+        #4caf50 50%, 
+        #66bb6a 75%, 
+        #81c784 100%);
+      background-size: 300% 300%;
+      animation: gradientShift 12s ease infinite;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      overflow: hidden;
+    }
+
+    @keyframes gradientShift {
+      0% { background-position: 0% 0%; }
+      25% { background-position: 100% 0%; }
+      50% { background-position: 100% 100%; }
+      75% { background-position: 0% 100%; }
+      100% { background-position: 0% 0%; }
+    }
+
+    /* Enhanced Floating Elements */
+    .floating-elements {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      z-index: 1;
+    }
+
+    .leaf, .seed, .water-drop, .flower {
+      position: absolute;
+      opacity: 0.7;
+      animation: float 20s infinite linear;
+      filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.1));
+    }
+
+    .leaf {
+      width: 35px;
+      height: 35px;
+      background: linear-gradient(45deg, #66bb6a, #4caf50);
+      border-radius: 0 100% 0 100%;
+      transform: rotate(45deg);
+    }
+
+    .seed {
+      width: 10px;
+      height: 10px;
+      background: radial-gradient(circle, #8bc34a, #689f38);
+      border-radius: 50%;
+    }
+
+    .water-drop {
+      width: 14px;
+      height: 18px;
+      background: linear-gradient(135deg, #4dd0e1, #26c6da);
+      border-radius: 50% 50% 50% 0;
+      transform: rotate(-45deg);
+    }
+
+    .flower {
+      width: 20px;
+      height: 20px;
+      background: radial-gradient(circle, #ffeb3b, #ffc107);
+      border-radius: 50%;
+      position: relative;
+    }
+
+    .flower::before {
+      content: '';
+      position: absolute;
+      top: -5px;
+      left: -5px;
+      right: -5px;
+      bottom: -5px;
+      background: radial-gradient(circle, rgba(255, 235, 59, 0.3), transparent);
+      border-radius: 50%;
+    }
+
+    @keyframes float {
+      0% {
+        transform: translateY(110vh) translateX(-50px) rotate(0deg);
+        opacity: 0;
+      }
+      10% {
+        opacity: 0.7;
+      }
+      90% {
+        opacity: 0.7;
+      }
+      100% {
+        transform: translateY(-50px) translateX(50px) rotate(360deg);
+        opacity: 0;
+      }
+    }
+
+    /* Enhanced Glassmorphism Hero Card */
+    .hero-content {
+      position: relative;
+      z-index: 10;
+      color: #ffffff;
+      max-width: 1000px;
+      padding: 80px 50px;
+      background: rgba(255, 255, 255, 0.08);
+      border: 2px solid rgba(255, 255, 255, 0.15);
+      border-radius: 32px;
+      backdrop-filter: blur(30px);
+      box-shadow: 
+        0 25px 80px rgba(0, 0, 0, 0.15),
+        0 0 0 1px rgba(255, 255, 255, 0.05),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1),
+        0 0 50px rgba(129, 199, 132, 0.1);
+      animation: slideUp 1.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      margin-bottom: 100px;
+      transition: var(--transition);
+    }
+
+    .hero-content:hover {
+      transform: translateY(-8px);
+      box-shadow: 
+        0 35px 100px rgba(0, 0, 0, 0.2),
+        0 0 0 1px rgba(255, 255, 255, 0.1),
+        inset 0 1px 0 rgba(255, 255, 255, 0.15),
+        0 0 80px rgba(129, 199, 132, 0.2);
+    }
+
+    @keyframes slideUp {
+      from { 
+        opacity: 0; 
+        transform: translateY(80px) scale(0.95); 
+      }
+      to { 
+        opacity: 1; 
+        transform: translateY(0) scale(1); 
+      }
+    }
+
+    /* Enhanced Typography */
+    h1 {
+      font-family: 'Poppins', sans-serif;
+      font-size: 5rem;
+      font-weight: 900;
+      margin-bottom: 25px;
+      text-transform: uppercase;
+      letter-spacing: 4px;
+      position: relative;
+      background: linear-gradient(135deg, #ffffff 0%, #e8f5e8 50%, #c8e6c9 100%);
+      background-size: 200% 200%;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      animation: textShimmer 4s ease-in-out infinite;
+      filter: drop-shadow(0 4px 20px rgba(0, 0, 0, 0.3));
+    }
+
+    @keyframes textShimmer {
+      0%, 100% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+    }
+
+    .subtitle {
+      font-size: 1.6rem;
+      margin-bottom: 50px;
+      color: var(--text-light);
+      font-weight: 300;
+      line-height: 1.6;
+      max-width: 800px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    /* Enhanced CTA Button */
+    .btn-container {
+      margin-top: 50px;
+    }
+
+    .btn {
+      display: inline-block;
+      padding: 22px 60px;
+      border-radius: 60px;
+      background: linear-gradient(135deg, #4caf50 0%, #2e7d32 50%, #1b5e20 100%);
+      color: #ffffff;
+      text-decoration: none;
+      font-size: 1.4rem;
+      font-weight: 700;
+      transition: var(--transition);
+      box-shadow: 
+        0 10px 30px rgba(76, 175, 80, 0.3),
+        0 0 0 0 rgba(76, 175, 80, 0.5),
+        inset 0 1px 0 rgba(255, 255, 255, 0.2);
+      position: relative;
+      overflow: hidden;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      border: 2px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .btn::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, 
+        transparent, 
+        rgba(255, 255, 255, 0.4), 
+        transparent);
+      transition: left 0.8s ease;
+    }
+
+    .btn:hover::before {
+      left: 100%;
+    }
+
+    .btn:hover {
+      transform: translateY(-5px) scale(1.03);
+      box-shadow: 
+        0 20px 50px rgba(76, 175, 80, 0.4),
+        0 0 20px rgba(76, 175, 80, 0.6),
+        inset 0 1px 0 rgba(255, 255, 255, 0.3);
+      background: linear-gradient(135deg, #66bb6a 0%, #388e3c 50%, #2e7d32 100%);
+      border-color: rgba(255, 255, 255, 0.3);
+    }
+
+    .btn:active {
+      transform: translateY(-2px) scale(0.98);
+    }
+
+    /* Feature Icons Section */
+    .features {
+      display: flex;
+      justify-content: center;
+      margin-top: 60px;
+      gap: 40px;
+      flex-wrap: wrap;
+    }
+
+    .feature-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 30px 20px;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 20px;
+      backdrop-filter: blur(15px);
+      transition: var(--transition);
+      min-width: 140px;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .feature-item::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, 
+        transparent, 
+        rgba(255, 255, 255, 0.1), 
+        transparent);
+      transition: left 0.6s ease;
+    }
+
+    .feature-item:hover::before {
+      left: 100%;
+    }
+
+    .feature-item:hover {
+      transform: translateY(-15px) scale(1.05);
+      background: rgba(255, 255, 255, 0.15);
+      border-color: rgba(255, 255, 255, 0.3);
+      box-shadow: 
+        0 20px 40px rgba(0, 0, 0, 0.15),
+        0 0 30px rgba(76, 175, 80, 0.2);
+    }
+
+    .feature-icon {
+      font-size: 3rem;
+      margin-bottom: 15px;
+      animation: bounce 3s infinite;
+      transition: var(--transition);
+    }
+
+    .feature-item:hover .feature-icon {
+      transform: scale(1.2) rotateY(360deg);
+      animation: none;
+    }
+
+    @keyframes bounce {
+      0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+      40% { transform: translateY(-15px); }
+      60% { transform: translateY(-8px); }
+    }
+
+    .feature-text {
+      font-size: 1rem;
+      color: var(--text-light);
+      text-align: center;
+      font-weight: 500;
+      letter-spacing: 0.5px;
+    }
+
+    /* New Sections Container */
+    .sections-container {
+      width: 100%;
+      max-width: 1400px;
+      padding: 0 50px;
+      z-index: 10;
+      position: relative;
+    }
+
+    .sections-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+      gap: 40px;
+      margin-bottom: 100px;
+    }
+
+    /* Section Cards */
+    .section-card {
+      background: rgba(255, 255, 255, 0.06);
+      border: 2px solid rgba(255, 255, 255, 0.1);
+      border-radius: 24px;
+      padding: 50px 40px;
+      backdrop-filter: blur(25px);
+      transition: var(--transition);
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      min-height: 350px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .section-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(135deg, 
+        rgba(76, 175, 80, 0.05) 0%, 
+        rgba(129, 199, 132, 0.05) 100%);
+      opacity: 0;
+      transition: var(--transition);
+    }
+
+    .section-card:hover::before {
+      opacity: 1;
+    }
+
+    .section-card:hover {
+      transform: translateY(-20px) scale(1.02);
+      border-color: rgba(255, 255, 255, 0.3);
+      background: rgba(255, 255, 255, 0.12);
+      box-shadow: 
+        0 30px 80px rgba(0, 0, 0, 0.2),
+        0 0 50px rgba(76, 175, 80, 0.3),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    }
+
+    .section-header {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    .section-icon {
+      font-size: 4rem;
+      margin-bottom: 20px;
+      display: block;
+      transition: var(--transition);
+      filter: drop-shadow(0 4px 20px rgba(0, 0, 0, 0.2));
+    }
+
+    .section-card:hover .section-icon {
+      transform: scale(1.2) rotateY(15deg);
+      filter: drop-shadow(0 8px 30px rgba(76, 175, 80, 0.3));
+    }
+
+    .section-title {
+      font-family: 'Poppins', sans-serif;
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: #ffffff;
+      margin-bottom: 15px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    .section-description {
+      font-size: 1.1rem;
+      color: var(--text-light);
+      line-height: 1.6;
+      margin-bottom: 30px;
+      text-align: center;
+    }
+
+    .section-features {
+      list-style: none;
+      padding: 0;
+    }
+
+    .section-features li {
+      display: flex;
+      align-items: center;
+      margin-bottom: 12px;
+      font-size: 1rem;
+      color: var(--text-light);
+      transition: var(--transition);
+      padding: 8px 0;
+    }
+
+    .section-features li::before {
+      content: '✓';
+      background: linear-gradient(135deg, #4caf50, #66bb6a);
+      color: white;
+      border-radius: 50%;
+      width: 24px;
+      height: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-right: 15px;
+      font-weight: bold;
+      font-size: 0.8rem;
+      transition: var(--transition);
+      box-shadow: 0 2px 10px rgba(76, 175, 80, 0.3);
+    }
+
+    .section-card:hover .section-features li {
+      transform: translateX(10px);
+      color: #ffffff;
+    }
+
+    .section-card:hover .section-features li::before {
+      transform: scale(1.1);
+      box-shadow: 0 4px 20px rgba(76, 175, 80, 0.5);
+    }
+
+    /* Particles Enhancement */
+    .particles {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 1;
+    }
+
+    .particle {
+      position: absolute;
+      width: 6px;
+      height: 6px;
+      background: radial-gradient(circle, rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0.2));
+      border-radius: 50%;
+      animation: particleFloat 25s infinite linear;
+      box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+    }
+
+    @keyframes particleFloat {
+      0% {
+        transform: translateY(110vh) translateX(0) scale(0);
+        opacity: 0;
+      }
+      10% {
+        opacity: 1;
+        transform: scale(1);
+      }
+      90% {
+        opacity: 1;
+      }
+      100% {
+        transform: translateY(-50px) translateX(100px) scale(0);
+        opacity: 0;
+      }
+    }
+
+    /* Scroll Indicator */
+    .scroll-indicator {
+      position: absolute;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 10;
+      animation: bounce 2s infinite;
+    }
+
+    .scroll-indicator::before {
+      content: '↓';
+      font-size: 2rem;
+      color: rgba(255, 255, 255, 0.7);
+      font-weight: bold;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 1200px) {
+      .sections-grid {
+        grid-template-columns: 1fr;
+        max-width: 600px;
+        margin: 0 auto;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .hero-content {
+        margin: 20px;
+        padding: 50px 30px;
+      }
+      
+      .sections-container {
+        padding: 0 20px;
+      }
+      
+      h1 {
+        font-size: 3rem;
+        letter-spacing: 2px;
+      }
+      
+      .subtitle {
+        font-size: 1.2rem;
+      }
+      
+      .btn {
+        font-size: 1.2rem;
+        padding: 18px 40px;
+      }
+      
+      .features {
+        gap: 25px;
+      }
+      
+      .feature-item {
+        min-width: 120px;
+        padding: 25px 15px;
+      }
+
+      .sections-grid {
+        grid-template-columns: 1fr;
+        gap: 30px;
+      }
+
+      .section-card {
+        padding: 40px 25px;
+        min-height: 300px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      h1 {
+        font-size: 2.2rem;
+      }
+      
+      .subtitle {
+        font-size: 1rem;
+      }
+      
+      .section-title {
+        font-size: 1.5rem;
+      }
+
+      .section-icon {
+        font-size: 3rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="landing">
+    <!-- Enhanced Floating Elements -->
+    <div class="floating-elements" id="floatingElements"></div>
+    
+    <!-- Enhanced Particles -->
+    <div class="particles" id="particles"></div>
+    
+    <!-- Hero Content -->
+    <div class="hero-content">
+      <h1>Farm Task & Inventory Management</h1>
+      <p class="subtitle">Transform your farming operations with intelligent task planning, comprehensive inventory tracking, and data-driven seasonal insights. Built by farmers, for farmers.</p>
+      
+      <div class="features">
+        <div class="feature-item">
+          <div class="feature-icon">🌾</div>
+          <div class="feature-text">Smart Planning</div>
+        </div>
+        <div class="feature-item">
+          <div class="feature-icon">📊</div>
+          <div class="feature-text">Live Tracking</div>
+        </div>
+        <div class="feature-item">
+          <div class="feature-icon">🚜</div>
+          <div class="feature-text">Equipment Monitor</div>
+        </div>
+      </div>
+      
+      <div class="btn-container">
+        <a href="login" class="btn">🌱 Start Farming Smart</a>
+      </div>
+    </div>
+
+    <!-- New Sections -->
+    <div class="sections-container">
+      <div class="sections-grid">
+        
+        <!-- Task Planner Section -->
+        <div class="section-card">
+          <div class="section-header">
+            <span class="section-icon">📋</span>
+            <h2 class="section-title">Task Planner</h2>
+            <p class="section-description">Organize and schedule all your farming activities with intelligent task management designed for seasonal workflows.</p>
+          </div>
+          
+          <ul class="section-features">
+            <li>Seasonal task scheduling</li>
+            <li>Weather-based recommendations</li>
+            <li>Equipment allocation tracking</li>
+            <li>Team collaboration tools</li>
+            <li>Progress monitoring</li>
+            <li>Automated reminders</li>
+          </ul>
+        </div>
+
+        <!-- Inventory Management Section -->
+        <div class="section-card">
+          <div class="section-header">
+            <span class="section-icon">🏪</span>
+            <h2 class="section-title">Inventory Management</h2>
+            <p class="section-description">Keep track of seeds, fertilizers, equipment, and harvest yields with real-time inventory monitoring and alerts.</p>
+          </div>
+          
+          <ul class="section-features">
+            <li>Real-time stock levels</li>
+            <li>Automated reorder alerts</li>
+            <li>Supplier management</li>
+            <li>Cost tracking & analytics</li>
+            <li>Expiration date monitoring</li>
+            <li>Barcode scanning support</li>
+          </ul>
+        </div>
+
+        <!-- Seasonal Reports Section -->
+        <div class="section-card">
+          <div class="section-header">
+            <span class="section-icon">📈</span>
+            <h2 class="section-title">Seasonal Reports</h2>
+            <p class="section-description">Gain valuable insights with comprehensive seasonal analytics, yield predictions, and performance metrics.</p>
+          </div>
+          
+          <ul class="section-features">
+            <li>Yield performance analysis</li>
+            <li>Cost-benefit reports</li>
+            <li>Weather impact assessment</li>
+            <li>Crop rotation planning</li>
+            <li>Financial summaries</li>
+            <li>Predictive insights</li>
+          </ul>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Scroll Indicator -->
+    <div class="scroll-indicator"></div>
+  </div>
+
+  <script>
+    // Enhanced floating elements creation
+    function createFloatingElements() {
+      const container = document.getElementById('floatingElements');
+      const elements = ['leaf', 'seed', 'water-drop', 'flower'];
+      
+      for (let i = 0; i < 25; i++) {
+        const element = document.createElement('div');
+        const type = elements[Math.floor(Math.random() * elements.length)];
+        element.className = type;
+        element.style.left = Math.random() * 100 + '%';
+        element.style.animationDelay = Math.random() * 20 + 's';
+        element.style.animationDuration = (20 + Math.random() * 15) + 's';
+        
+        // Add random scale variation
+        const scale = 0.7 + Math.random() * 0.6;
+        element.style.transform += ` scale(${scale})`;
+        
+        container.appendChild(element);
+      }
+    }
+
+    // Enhanced particles creation
+    function createParticles() {
+      const container = document.getElementById('particles');
+      
+      for (let i = 0; i < 50; i++) {
+        const particle = document.createElement('div');
+        particle.className = 'particle';
+        particle.style.left = Math.random() * 100 + '%';
+        particle.style.animationDelay = Math.random() * 25 + 's';
+        particle.style.animationDuration = (25 + Math.random() * 20) + 's';
+        
+        // Add random opacity variation
+        particle.style.opacity = 0.3 + Math.random() * 0.7;
+        
+        container.appendChild(particle);
+      }
+    }
+
+    // Enhanced mouse movement parallax
+    document.addEventListener('mousemove', (e) => {
+      const mouseX = e.clientX / window.innerWidth;
+      const mouseY = e.clientY / window.innerHeight;
+      
+      // Apply parallax to different elements
+      const heroContent = document.querySelector('.hero-content');
+      const sectionCards = document.querySelectorAll('.section-card');
+      
+      if (heroContent) {
+        const offsetX = (mouseX - 0.5) * 15;
+        const offsetY = (mouseY - 0.5) * 15;
+        heroContent.style.transform = translate(${offsetX}px, ${offsetY}px);
+      }
+      
+      // Apply subtle parallax to section cards
+      sectionCards.forEach((card, index) => {
+        const offsetX = (mouseX - 0.5) * (8 - index * 2);
+        const offsetY = (mouseY - 0.5) * (8 - index * 2);
+        card.style.transform += ` translate(${offsetX}px, ${offsetY}px)`;
+      });
+
+      // Floating elements parallax
+      const floatingElements = document.querySelectorAll('.leaf, .seed, .water-drop, .flower');
+      floatingElements.forEach((element, index) => {
+        const speed = 0.5 + (index % 3) * 0.2;
+        const offsetX = (mouseX - 0.5) * 20 * speed;
+        const offsetY = (mouseY - 0.5) * 20 * speed;
+        element.style.transform += ` translate(${offsetX}px, ${offsetY}px)`;
+      });
+    });
+
+    // Intersection Observer for animations
+    const observerOptions = {
+      threshold: 0.1,
+      rootMargin: '0px 0px -50px 0px'
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.style.opacity = '1';
+          entry.target.style.transform = 'translateY(0)';
+        }
+      });
+    }, observerOptions);
+
+    // Enhanced initialization
+    document.addEventListener('DOMContentLoaded', () => {
+      createFloatingElements();
+      createParticles();
+      
+      // Animate features on load
+      const features = document.querySelectorAll('.feature-item');
+      features.forEach((feature, index) => {
+        feature.style.opacity = '0';
+        feature.style.transform = 'translateY(50px)';
+        
+        setTimeout(() => {
+          feature.style.transition = 'all 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+          feature.style.opacity = '1';
+          feature.style.transform = 'translateY(0)';
+        }, 2000 + (index * 200));
+      });
+
+      // Animate section cards on load
+      const sectionCards = document.querySelectorAll('.section-card');
+      sectionCards.forEach((card, index) => {
+        card.style.opacity = '0';
+        card.style.transform = 'translateY(60px)';
+        
+        setTimeout(() => {
+          card.style.transition = 'all 1s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+          card.style.opacity = '1';
+          card.style.transform = 'translateY(0)';
+        }, 2500 + (index * 300));
+      });
+
+      // Observe section cards for scroll animations
+      sectionCards.forEach(card => observer.observe(card));
+    });
+
+    // Enhanced button click effect
+    document.querySelector('.btn').addEventListener('click', function(e) {
+      // Create multiple ripple effects
+      for (let i = 0; i < 3; i++) {
+        setTimeout(() => {
+          const ripple = document.createElement('div');
+          const rect = this.getBoundingClientRect();
+          const size = Math.max(rect.width, rect.height) + i * 20;
+          const x = e.clientX - rect.left - size / 2;
+          const y = e.clientY - rect.top - size / 2;
+          
+          ripple.style.width = ripple.style.height = size + 'px';
+          ripple.style.left = x + 'px';
+          ripple.style.top = y + 'px';
+          ripple.style.position = 'absolute';
+          ripple.style.borderRadius = '50%';

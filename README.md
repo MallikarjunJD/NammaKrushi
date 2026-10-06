@@ -124,8 +124,8 @@ Before you begin, ensure you have the following installed:
 #### 1️⃣ Clone the Repository
 
 ```bash
-git clone https://github.com/Akhilesh-K14/Hackathon.git
-cd Hackathon
+git clone https://github.com/MallikarjunJD/NammKrushi.git
+
 ```
 
 #### 2️⃣ Create Virtual Environment
@@ -424,8 +424,8 @@ This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md
 
 For issues or questions:
 
-- **GitHub Issues**: [github.com/Akhilesh-K14/Hackathon/issues](https://github.com/Akhilesh-K14/Hackathon/issues)
-- **Email**: akhilesh112606@gmail.com
+- **GitHub Issues**: [github.com/MallikarjunJD/NammaKrushi/issues](https://github.com/MallikarjunJD/NammaKrushi/issues)
+- **Email**: mallikarjunjadi9@gmail.com
 
 ---
 
@@ -442,4 +442,4 @@ For issues or questions:
 
 ---
 
-**Made with ❤️ for farmers by Team ELITE4 Avishkaar**
+**Made with ❤️ for farmers by Team BOLDVISIONS**

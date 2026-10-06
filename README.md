@@ -1,4 +1,4 @@
-# 🌾 Farm Management & Marketplace System
+# 🌾 NammaKrushi - Farm Management & Marketplace System
 
 A comprehensive AI-powered farm management platform that helps farmers optimize their operations, connect with markets, and make data-driven decisions using climate insights and machine learning.
 
